@@ -1,0 +1,321 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem      1.0
+
+name            paraview
+version         3.4.0
+revision        0
+set branch      [join [lrange [split ${version} .] 0 1] .]
+
+categories      graphics math science devel
+
+maintainers     dweber openmaintainer
+
+description     ParaView: data visualization on distributed computing platforms
+
+long_description \
+ParaView is an open-source, multi-platform data analysis and visualization application. ParaView users can quickly build visualizations to analyze their data using qualitative and quantitative techniques. The data exploration can be done interactively in 3D or programmatically using ParaView's batch processing capabilities.  ParaView was developed to analyze extremely large datasets using distributed memory computing resources. It can be run on supercomputers to analyze datasets of terascale as well as on laptops for smaller data.
+
+homepage        http://www.paraview.org
+master_sites    ${homepage}/files/v${branch}
+
+distname        paraview-${branch}
+distfiles       paraview-${version}.tar.gz \
+
+checksums       paraview-${version}.tar.gz \
+                    md5  a12067913e08ea7a465ca41509dbfde1 \
+                    sha1 08aca4cac9e557b763206ba6a5496487e335bcbc \
+                    rmd160 992c90712c057e1802fb55817ca2d7d49e526afb
+
+extract.only    paraview-${version}.tar.gz \
+
+platforms       darwin
+
+depends_build   port:cmake \
+                port:gmake
+
+depends_lib     port:xorg-libs \
+                port:qt4-mac
+
+# Use gmake and build in a separate directory from the source
+build.type      gnu
+build.dir       ${workpath}/${distname}-build
+
+
+# Global variables, used in variants, where a destroot prefix is appended, when necessary.
+set pvLibPath      ${prefix}/lib/${distname}
+set pvIncPath      ${prefix}/include/${distname}
+set pvSharePath    ${prefix}/share/${distname}
+#set pvDocFile      Doxygenparaview-${version}.tar.gz
+set pvDocPath      ${pvSharePath}/doc
+set pvDataPath     ${pvSharePath}/data
+set pvExamplePath  ${pvSharePath}/examples
+set pvTestingPath  ${pvSharePath}/testing
+set pvBuildBin     ${build.dir}/bin
+set pvExampleBin   ${pvExamplePath}/bin
+set pvTestingBin   ${pvTestingPath}/bin
+set pvExampleSrc   ${worksrcpath}/Examples
+set pvTestingSrc   ${worksrcpath}/Testing
+
+# Using this dummy stage to inspect MacPorts variables
+# (using 'port -d fetch paraview')
+#fetch { system "echo ${pvLibPath}" }
+
+post-extract {
+    move ${workpath}/paraview-${version} ${worksrcpath}
+}
+
+configure {
+    xinstall -d -m 0755 ${build.dir}
+    system "cd ${build.dir} && cmake ${configure.args} ${worksrcpath}"
+}
+
+# To double-check all the cmake variable settings after the configure
+#cd ${build.dir}
+#sudo cmake -LAH ../pv-${branch} > ~/cmake_vars.txt
+# Similarly, for an interactive configuration with ccmake, try:
+#cd ${build.dir}
+#sudo ccmake ../pv-${branch}
+
+configure.args-append \
+    -DBUILD_SHARED_LIBS:BOOL=OFF \
+    -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo \
+    -DCMAKE_INCLUDE_PATH:PATH=${prefix}/include \
+    -DCMAKE_LIBRARY_PATH:PATH=${prefix}/lib \
+    -DCMAKE_INSTALL_NAME_DIR:STRING=${prefix}/lib/${distname} \
+    -DCMAKE_INSTALL_PREFIX:PATH=${prefix} \
+    -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
+    -DDESIRED_QT_VERSION:STRING=4 \
+    -DPARAVIEW_BUILD_QT_GUI:BOOL=ON \
+    -DQT_QMAKE_EXECUTABLE:FILEPATH=${prefix}/bin/qmake-mac \
+    -DVTK_USE_QVTK:BOOL=ON \
+    -DPARAVIEW_ENABLE_PYTHON:BOOL=OFF \
+    -DPARAVIEW_USE_MPI:BOOL=OFF
+
+# Qt 4.3.0 or greater not found.  Please check the QT_QMAKE_EXECUTABLE
+
+#post-destroot {
+#    move ${destroot}${prefix}/lib/paraview     ${destroot}/${pvLibPath}
+#    move ${destroot}${prefix}/include/paraview ${destroot}/${pvIncPath}
+#}
+
+
+# -----------------------------------------------------------------------------
+# VARIANTS
+# variant name [requires variant] [conflicts variant] [description description]
+
+default_variants \
+    +data \
+    +shared
+
+#variant doc description "provide doxygen documentation in ${pvDocPath}" {
+#    distfiles-append    ${pvDocFile}
+#    checksums-append    ${pvDocFile} \
+#                        md5  99dcad9f8e7a3d0acb9da62efdf5fd13 \
+#                        sha1 e6800094f493e6ef2b1484ce2da578a19a978c40 \
+#                        rmd160 a20167892a6e91e6f530313c3c057e4d08999d62
+#    post-destroot {
+#        set pvDocPathLink ${prefix}/share/doc/${distname}
+#        xinstall -d -o root -g admin -m 755 ${destroot}/${pvDocPath}
+#        xinstall -d -o root -g admin -m 755 ${destroot}/${pvDocPathLink}
+#        # Add the doxygen documentation 
+#        system "tar --strip-components 1 -C ${destroot}/${pvDocPath} -zxf ${distpath}/${pvDocFile}"
+#        # Add basic documentation
+#        file copy ${worksrcpath}/Copyright     ${destroot}/${pvDocPath}/
+#        file copy ${worksrcpath}/Copyright.txt ${destroot}/${pvDocPath}/
+#        file copy ${worksrcpath}/README.html   ${destroot}/${pvDocPath}/
+#        # Create a symlink to the $prefix path (not the destroot path); use the
+#        # system to do this because the $prefix path doesn't exist yet and the
+#        # tcl ln command fails, whereas this system command will allow it.
+#        system "ln -Fns ${pvDocPath} ${destroot}/${pvDocPathLink}"
+#    }
+#}
+
+# --- Data variants
+
+variant data description "provide data in ${pvDataPath}" {
+    distfiles-append \
+        ParaViewData${branch}.zip
+    checksums-append \
+        ParaViewData${branch}.zip \
+            md5  93cf1bfb4a64c9fee5254c9dd126027d \
+            sha1 af2ed1b2b809c0fe7228ee22dd058074c662667f \
+            rmd160 8bdd50bbf22de7e0f8316aed22cd64138b1ba2a5
+    configure.args-append \
+        -DPARAVIEW_DATA_ROOT:PATH=${pvDataPath}
+    #post-destroot {
+    #    xinstall -d -o root -g admin -m 755 ${destroot}/${pvDataPath}
+    #    foreach tgz [exec find ${distpath} -name "BrainPart*.tgz"] {
+    #        system "tar -C ${destroot}/${pvDataPath} -zxf ${tgz}"
+    #    }
+    #}
+}
+
+
+# Notes on RPATH settings for the shared dylib build and install:
+#
+# CMake book, Appendix A, p 234: "CMAKE_SKIP_BUILD_RPATH: Do not include RPATHs
+# in the build tree.  Normally CMake uses the build tree for the RPATH when
+# building executables etc. on systems that use RPATH.  When the software is
+# installed the executables etc.  are relinked by CMake to have the install
+# RPATH.  If this variable is set to true then the software is always built with
+# no RPATH."
+#
+# CMake book, Appendix B, p. 301: "... SKIP_BUILD_RPATH is a boolean specifying
+# whether to skip automatic generation of an rpath allowing the target to run
+# from the build tree.  BUILD_WITH_INSTALL_RPATH is a boolean specifying whether
+# to link the target in the build tree with the INSTALL_RPATH.  This takes
+# precedence over SKIP_BUILD_RPATH and avoids the need for relinking before
+# installation."
+#
+# Using CMAKE_SKIP_BUILD_RPATH:BOOL=OFF, we get all the executables and dylibs
+# built with the $build.dir in the rpath.  For this to work, we must also have
+# CMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=OFF.  After the build, at the destroot
+# phase, all the installation candidates (which excludes the examples and
+# testing binaries) have their rpath settings reset to the INSTALL_RPATH (which
+# should point to $prefix..., not the $destroot location).
+
+variant shared description "build shared libraries (default)" {
+    configure.args-delete \
+        -DBUILD_SHARED_LIBS:BOOL=OFF
+    configure.args-append \
+        -DBUILD_SHARED_LIBS:BOOL=ON \
+        -DCMAKE_SKIP_RPATH:BOOL=OFF \
+        -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=OFF \
+        -DCMAKE_INSTALL_RPATH:STRING=${pvLibPath}
+}
+
+
+proc resetLibLinks { inputPath } {
+    # The example and testing binaries are built, but they are not "installed".
+    # All their rpath settings point to the build.dir, so they must be
+    # reset using install_name_tool for the destroot install.
+    global pvBuildBin pvLibPath
+    foreach f [glob ${inputPath}/*] {
+        if [string equal [file extension ${f}] ".app"] {
+            set exeName [file rootname [lindex [file split ${f}] end]]
+            set f [format "%s/Contents/MacOS/%s" ${f} ${exeName}]
+        }
+        if [expr [file isfile ${f}] && [file executable ${f}]] {
+            foreach dep [exec otool -L ${f}] {
+                if [string match -nocase "*/libpv*.dylib" ${dep}] {
+                    set newdep [strsed ${dep} #${pvBuildBin}#${pvLibPath}#]
+                    system "install_name_tool -change ${dep} ${newdep} ${f}"
+                }
+            }
+        }
+    }
+}
+
+
+variant examples description "provide examples in ${pvExamplePath}" {
+    configure.args-delete \
+        -DBUILD_EXAMPLES:BOOL=OFF
+    configure.args-append \
+        -DBUILD_EXAMPLES:BOOL=ON
+    #post-destroot {
+    #    xinstall -d -o root -g admin -m 755 ${destroot}/${pvExampleBin}
+    #    foreach f [glob ${pvExampleSrc}/*] {
+    #        file copy ${f} ${destroot}/${pvExamplePath}/
+    #    }
+    #    # Find all the example executables by parsing all the
+    #    # CMakeLists.txt files within the src Examples path
+    #    set exe {}
+    #    foreach f [exec find ${pvExampleSrc} -name "CMakeLists.txt"] {
+    #        catch {exec grep -e "ADD_EXECUTABLE" ${f}} results
+    #        if [expr ![string match "*child process*" ${results}]] {
+    #            # Remove the string "ADD_EXECUTABLE(", with or without whitespace
+    #            regsub -all "\[ \t\]*ADD_EXECUTABLE\[(\]\[ \t\]*" ${results} "" results
+    #            # Remove the string ".cxx)", with or without whitespace
+    #            regsub -all ".cxx\[ \t\]*\[)\]" ${results} "" results
+    #            set exe [concat ${exe} ${results}]
+    #        }
+    #    }
+    #    set exe [lsort -unique ${exe}]
+    #    # Installations for the example binaries are in ${pvBuildBin}.
+    #    # Copy them into the destroot example bin.
+    #    foreach f $exe {
+    #        set f ${pvBuildBin}/${f}
+    #        if [expr [file isfile ${f}] && [file executable ${f}]] {
+    #            file copy ${f} ${destroot}/${pvExampleBin}
+    #        }
+    #    }
+    #    resetLibLinks ${destroot}/${pvExampleBin}
+    #}
+}
+
+
+variant testing description "provide testing in ${pvTestingPath}" {
+    configure.args-delete \
+        -DBUILD_TESTING:BOOL=OFF
+    configure.args-append \
+        -DBUILD_TESTING:BOOL=ON
+    #post-destroot {
+    #    xinstall -d -o root -g admin -m 755 ${destroot}/${pvTestingBin}
+    #    foreach f [glob ${pvTestingSrc}/*] {
+    #        file copy ${f} ${destroot}/${pvTestingPath}/
+    #    }
+    #    # Find all the testing executables by parsing all the
+    #    # CMakeLists.txt files within the pvTestingSrc path
+    #    set exe {}
+    #    foreach f [exec find ${pvTestingSrc} -name "CMakeLists.txt"] {
+    #        catch {exec grep -e "ADD_EXECUTABLE" ${f}} results
+    #        if [expr ![string match "*child process*" ${results}]] {
+    #            # Remove the string "ADD_EXECUTABLE(", with or without whitespace
+    #            regsub -all "\[ \t\]*ADD_EXECUTABLE\[(\]\[ \t\]*" ${results} "" results
+    #            # Remove the string ".cxx)", with or without whitespace
+    #            regsub -all ".cxx\[ \t\]*\[)\]" ${results} "" results
+    #            set exe [concat ${exe} ${results}]
+    #        }
+    #    }
+    #    set exe [lsort -unique ${exe}]
+    #    # Installations for the testing binaries are in ${pvBuildBin}.
+    #    # Copy them into the destroot testing bin.
+    #    foreach f $exe {
+    #        set f ${pvBuildBin}/${f}
+    #        if [expr [file isfile ${f}] && [file executable ${f}]] {
+    #            file copy ${f} ${destroot}/${pvTestingBin}
+    #        }
+    #    }
+    #    resetLibLinks ${destroot}/${pvTestingBin}
+    #}
+}
+
+
+# --- external languages support
+
+#variant wrap requires shared description "USE_WRAP_ITK for external language support" {
+#    set pyver        2.5
+#    set python       python${pyver}
+#    set pyport       [join [lrange [split ${python} .] 0 1] ""]
+#    set pyframe      ${prefix}/Library/Frameworks/Python.framework/Versions/${pyver}
+#    depends_lib-append \
+#        port:guile
+#    configure.args-append \
+#        -DUSE_WRAP_ITK:BOOL=ON \
+#        -DITK_USE_REVIEW:BOOL=ON \
+#        -DCMAKE_CXX_FLAGS:STRING=-fpermissive \
+#        -DGUILE_EXECUTABLE:FILEPATH=${prefix}/bin/guile \
+#        -DGUILE_LIBRARY:FILEPATH=${prefix}/lib/libguile.dylib \
+#        -DGUILE_INCLUDE_PATH:PATH=${prefix}/include/guile \
+#        -DPYTHON_EXECUTABLE:FILEPATH=${prefix}/bin/${python} \
+#        -DPYTHON_INCLUDE_PATH:FILEPATH=${prefix}/include/${python} \
+#        -DPYTHON_LIBRARY:FILEPATH=${prefix}/lib/lib${python}.dylib \
+#        -DPYTHON_DEBUG_LIBRARY:FILEPATH=${prefix}/lib/lib${python}.dylib \
+#        -DTCL_TCLSH:FILEPATH=${prefix}/bin/tclsh \
+#        -DTCL_INCLUDE_PATH:PATH=${prefix}/include \
+#        -DTCL_LIBRARY:FILEPATH=${prefix}/lib/libtcl.dylib \
+#        -DTK_INCLUDE_PATH:PATH=${prefix}/include \
+#        -DTK_LIBRARY:FILEPATH=${prefix}/lib/libtk.dylib
+#
+#        #-DSWIG_BUILD_EXAMPLES:BOOL=ON
+#
+#}
+
+
+#-DPARAVIEW_ENABLE_PYTHON:BOOL=ON
+
+
+
+#-DPARAVIEW_USE_MPI:BOOL=ON
