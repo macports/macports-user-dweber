@@ -1,0 +1,69 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+# $Id$
+
+PortSystem 1.0
+
+name        pgAdmin3
+version     1.8.4
+
+categories  databases
+maintainers jwa
+
+description An administration program to PostgreSQL
+long_description pgAdmin III is a powerful administration and development \
+    platform for the PostgreSQL database, free for any use. The \
+    application works on several platforms, e.g. GNU/Linux, FreeBSD, \
+    OS X and Windows 2000/XP. This port is for OS X.
+
+platforms   macosx
+homepage    http://www.pgadmin.org/
+
+master_sites    http://developer.pgadmin.org/ftp/release/v${version}/src/ \
+                http://www.postgresql.org/ftp/pgadmin3/release/v${version}/src/
+
+distname    pgadmin3-${version}
+
+checksums   \
+    md5 12fc6027f651788615a7fa1c6ddbcdb3 \
+    sha1 c3103792c678183c5a9081daac56ebf467d674ff \
+    rmd160 466fa7fbb734f9bc63fb2375da0c87fe3d47b7f1
+
+depends_lib port:postgresql83 \
+            port:wxWidgets \
+            port:openssl \
+            port:libxml2 \
+            port:libxslt
+
+configure.args-append \
+    --with-pgsql=${prefix}/lib/postgresql83 \
+    --with-wx=${prefix} \
+    --with-wx-version=2.8 \
+    --with-libxml2=${prefix} \
+    --with-libxslt=${prefix} \
+    --enable-appbundle
+
+build.target    all install
+
+#destroot.violate_mtree yes
+destroot {
+    xinstall -d -m 0755 ${destroot}/Applications/MacPorts
+    file copy ${worksrcpath}/${name}.app ${destroot}/Applications/MacPorts/${name}.app
+}
+
+variant with_postgresql82 conflicts with_postgresql83 \
+    description {support for PostgreSQL 8.2.x} {
+    depends_lib-delete      port:postgresql83
+    depends_lib-delete      --with-pgsql=${prefix}/lib/postgresql83
+    depends_lib-append      port:postgresql82
+    configure.args-append   --with-pgsql=${prefix}/lib/postgresql82
+}
+
+variant debug description {provide a debug build in case of difficulties} {
+    configure.args-append   --enable-debug
+}
+
+livecheck.check regex
+livecheck.url   ${homepage}
+livecheck.regex pgAdmin III v(1.\[0-9\]+.\[0-9\]+)
+

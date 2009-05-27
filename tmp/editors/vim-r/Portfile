@@ -1,0 +1,37 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+# $Id$
+
+PortSystem          1.0
+
+name                vim-r
+version             0.5-80
+categories          editors
+maintainers         dweber
+description         Vim R-project plugin
+long_description    Send R code from a VIM buffer to R
+
+homepage            http://www.vim.org/scripts/script.php?script_id=1048
+
+checksums \
+                    MD5  500463d51b48a3c3d5368d74e400c6a2 \
+                    SHA1 c79b42f7a2b17053f4ffd407955d9d089455f04c \
+                    RMD160 457dfa1d650b66d25c48f4648bdc2164a6bae0fe
+
+fetch   {
+    wget -q -O ${name}-${version}.tgz \
+        http://www.vim.org/scripts/download_script.php?src_id=7976
+}
+
+distname            ${name}-${version}
+
+# Is there a port for R?
+# See http://r.research.att.com/ for R on OSX
+
+depends_lib         port:R \
+                    port:vim \
+                    port:p5-term-readline-gnu \
+                    port:p5-io-tty \
+                    port:p5-io-stty
+
+

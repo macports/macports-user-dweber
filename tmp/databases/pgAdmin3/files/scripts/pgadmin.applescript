@@ -1,0 +1,1 @@
+do shell script "open -a \"/Applications/MacPorts/pgAdmin3.app\""

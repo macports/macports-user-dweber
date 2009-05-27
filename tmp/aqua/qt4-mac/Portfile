@@ -1,0 +1,198 @@
+# -*- coding: utf-8; mode: tcl; c-basic-offset: 4; indent-tabs-mode: nil; tab-width: 4; truncate-lines: t -*- vim:fenc=utf-8:et:sw=4:ts=4:sts=4
+# $Id$
+
+PortSystem          1.0
+
+name                qt4-mac
+version             4.4.3
+categories          aqua
+platforms           macosx
+maintainers         erickt clubjuggler@gmail.com openmaintainer
+
+homepage            http://www.trolltech.com/
+description         Qt Tool Kit (Native Aqua Version)
+long_description    This is Qt, TrollTech's C++ toolkit for writing cross-platform GUI applications. \
+                    This version uses the native Aqua UI. For a X11 version, see qt4-x11.
+master_sites        ftp://ftp.trolltech.com/qt/source/ \
+                    http://ftp.iasi.roedu.net/mirrors/ftp.trolltech.com/qt/source/ \
+                    http://ftp.ntua.gr/pub/X11/Qt/qt/source/ \
+                    http://wftp.tu-chemnitz.de/pub/Qt/qt/source/
+distname            qt-mac-opensource-src-${version}
+checksums           md5 766c02e23d2de1b19c9a25a68297b04e \
+                    sha1 00cdf6df27a590565f557a7c02ba2edc634354d1 \
+                    rmd160 7c39303f7aef6a369a16e787681b78d07c59fc76
+
+depends_lib         port:libmng port:libpng port:jpeg port:tiff
+
+patchfiles          patch-mac.conf.diff
+
+# have to build with Apple gcc because of -fconstant-cfstrings
+configure.compiler  gcc-4.0
+configure.cmd       "CFLAGS=-isystem${prefix}/include CXXFLAGS=-isystem${prefix}/include ./configure"
+configure.pre_args
+
+# directory for .app and executable files
+# Once installed, they should not be moved so they can find each other
+# (e.g. assistant.app) and the examples directory
+set bindir ${prefix}/libexec/${name}/bin
+set frameworkdir ${prefix}/Library/Frameworks
+
+# Can be removed once MacPorts 1.7.0 is released
+if {![info exists applications_dir]} {
+    set applications_dir /Applications/MacPorts
+}
+
+# See
+#   http://doc.trolltech.com/qtopia4.3/buildsystem/over-configure-options-qt-1.html
+# for options
+configure.args \
+    -v         \
+    -confirm-license \
+    -prefix         '${prefix}'                            \
+    -bindir         '${bindir}'                            \
+    -docdir         '${prefix}/share/doc/${portname}'      \
+    -datadir        '${prefix}/share/${portname}'          \
+    -headerdir      '${prefix}/include/${portname}'        \
+    -plugindir      '${prefix}/lib/${portname}-plugins'    \
+    -translationdir '${prefix}/share/${portname}/translations' \
+    -optimized-qmake    -debug-and-release        -shared         -stl      \
+    -no-openssl         -largefile                                          \
+    -system-libpng      -system-libjpeg -system-libmng  -system-libtiff     \
+    -system-zlib        -qt-gif                                             \
+    -no-sql-ibase       -no-sql-mysql   -no-sql-odbc    -no-sql-psql        \
+    -no-sql-sqlite      -no-nis         -no-cups                            \
+    -framework          -libdir '${frameworkdir}'                           \
+    -make libs          -make tools                                         \
+    -I${worksrcpath}/include \
+    -L${worksrcpath}/lib -L${prefix}/lib
+
+    # Take care of this with the CXXFLAGS=-isystem${prefix}/include
+    # this puts the include at the end so that qt's include files are found first.
+    # -I${prefix}/include
+    # not made by default, anyway: -nomake demos -nomake examples
+
+build.target        first
+use_parallel_build  yes
+
+destroot.destdir    INSTALL_ROOT="${destroot}"
+
+post-destroot {
+    xinstall -d -m 0755 ${destroot}${bindir}
+    xinstall -d -m 0755 ${destroot}${applications_dir}/Qt
+    xinstall -d -m 0755 ${destroot}${prefix}/share/doc/${portname}
+
+    # create link in ${prefix}/bin to executable files in ${bindir}
+    foreach bin [glob -type f -directory ${destroot}${bindir} *] {
+        system "ln -s ${bindir}/[file tail ${bin}] ${destroot}${prefix}/bin"
+    }
+
+    # create link in ${applications_dir}/Qt to .app directories in ${bindir}
+    # create link in ${prefix}/bin to all *.app/Contents/MacOS/*
+    foreach app [glob -type d -directory ${destroot}${bindir} *.app] {
+        system "ln -s ${bindir}/[file tail ${app}] ${destroot}${applications_dir}/Qt"
+        foreach bin [glob -type f -directory ${app} Contents/MacOS/*] {
+            system "ln -s ${bindir}/[file tail ${app}]/Contents/MacOS/[file tail ${bin}] ${destroot}${prefix}/bin"
+        }
+    }
+
+    # fix id of plugins shared libraries
+    foreach dirFull [glob -directory ${destroot}${prefix}/lib/${portname}-plugins -type d -nocomplain *] {
+        set dir [file tail ${dirFull}]
+        foreach libFull [glob -directory ${destroot}${prefix}/lib/${portname}-plugins/${dir} -nocomplain *.dylib] {
+            set lib [file tail ${libFull}]
+            system "install_name_tool -id ${prefix}/lib/${portname}-plugins/${dir}/${lib} ${libFull}"
+        }
+    }
+
+    # Put pkgconfig directory in correct place (Fix Ticket #15353)
+    if { ![variant_isset noframework]} {
+        system "mv ${destroot}${frameworkdir}/pkgconfig ${destroot}/${prefix}/lib/"
+    }
+    
+    # dweber: I find it useful to have these symlinks,
+    # but this is not stricly macports style because it
+    # creates files outside the ${destroot}${prefix}
+    # if {[variant_isset noframework]} {
+        #xinstall -d -m 0755 /Developer/Applications/Qt
+        #system "for d in ${prefix}/libexec/qt4-mac/bin/*; do sudo ln -s $d /Developer/Applications/Qt/`basename $d`; done"
+    #}
+
+    # install documentation
+    foreach doc {INSTALL LICENSE.GPL2 LICENSE.GPL3 OPENSOURCE-NOTICE.TXT README \
+                 GPL_EXCEPTION_ADDENDUM.TXT GPL_EXCEPTION.TXT} {
+        xinstall -c -m 644 ${worksrcpath}/$doc ${destroot}${prefix}/share/doc/${portname}
+    }
+}
+
+default_variants +docs +dbus
+
+variant dbus description "Include DBus support" {
+    depends_lib-append      port:dbus
+    configure.args-append   -dbus-linked
+}
+
+variant noframework description "Do not build frameworks" {
+    configure.args-delete   -framework -libdir '${frameworkdir}'
+    configure.args-append   -no-framework
+}
+
+variant nis description "Include Network Information Service (NIS) support" {
+    configure.args-delete   -no-nis
+    configure.args-append   -nis
+}
+
+variant cups description "Include Common Unix Printing System (CUPS) support" {
+    configure.args-delete   -no-cups
+    configure.args-append   -cups
+}
+
+variant mysql4 conflicts mysql5 description "Include support for SQL via mysql4 driver" {
+    depends_lib-append      lib:libmysqlclient.12:mysql4
+    configure.args-delete   -no-sql-mysql
+    configure.args-append   -qt-sql-mysql -plugin-sql-mysql \
+                            -I${prefix}/include/mysql -L${prefix}/lib/mysql
+}
+
+variant mysql5 conflicts mysql4 description "Include support for SQL via mysql5 driver" {
+    depends_lib-append      lib:libmysqlclient.15:mysql5
+    configure.args-delete   -no-sql-mysql
+    configure.args-append   -qt-sql-mysql -plugin-sql-mysql \
+                            -I${prefix}/include/mysql5/mysql -L${prefix}/lib/mysql5/mysql
+}
+
+variant psql description "Include support for SQL via postgresql driver" {
+    depends_lib-append      port:postgresql83
+	configure.args-delete	-no-sql-psql
+	configure.args-append	-qt-sql-psql -plugin-sql-psql \
+                            -I${prefix}/include/postgresql83 -L${prefix}/lib/postgresql83
+}
+
+variant sqlite description "Include support for SQL via sqlite driver" {
+	configure.args-delete	-no-sql-sqlite
+	configure.args-append	-qt-sql-sqlite -plugin-sql-sqlite
+}
+
+variant ssl description "Include OpenSSL support" {
+    depends_lib-append      port:openssl
+    configure.args-delete   -no-openssl
+    configure.args-append   -openssl
+}
+
+variant examples description "Build Qt examples" {
+    # configure.args-delete   "-nomake examples"
+    configure.args-append   -make examples -examplesdir ${prefix}/share/${portname}/examples
+}
+
+variant demos description "Build Qt demos" {
+    # configure.args-delete   "-nomake demos"
+    configure.args-append   -make demos -demosdir ${prefix}/share/${portname}/demos
+}
+
+variant docs description "Include Qt Documentation" {
+    configure.args-append   -make docs
+}
+
+
+livecheck.check     regex
+livecheck.url       http://trolltech.com/developer/downloads/qt/mac
+livecheck.regex     "The current version of Qt/Mac Open Source Edition is (4(?:\\.\\d+)*)"

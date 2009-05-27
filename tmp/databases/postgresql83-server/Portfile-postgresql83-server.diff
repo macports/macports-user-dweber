@@ -1,0 +1,145 @@
+--- Portfile.orig	2008-10-04 15:45:12.000000000 -0700
++++ Portfile	2008-10-04 15:46:23.000000000 -0700
+@@ -1,61 +1,92 @@
++# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
++
+ # $Id: Portfile-postgresql83-server.diff,v 1.1.1.1 2009/05/15 14:31:01 dweber Exp $
+ 
+ PortSystem 1.0
+ 
+-name			postgresql83-server
+-version			8.3.4
+-categories		databases
+-platforms		darwin
+-maintainers		mww jwa
+-description		run postgresql83 as server
+-long_description	${description}
+-
+-homepage		http://www.postgresql.org/
+-master_sites		postgresql
+-
+-depends_run		port:postgresql83
+-
+-fetch	{}
+-checksum	{}
+-extract	{}
+-use_configure	no
+-build	{}
+-
+-set libdir		${prefix}/lib/postgresql83
+-set dbdir		${prefix}/var/db/postgresql83/defaultdb
+-set logdir		${prefix}/var/log/postgresql83
+-set dbuser		postgres
+-set dbgrp		postgres
+-
+-startupitem.create	yes
+-startupitem.init	\
+-	"PGCTL=${libdir}/bin/pg_ctl"
+-startupitem.start	\
+-	"su ${dbuser} -c \"\${PGCTL} -D \${POSTGRESQL83DATA:=${dbdir}} start -l ${logdir}/postgres.log\""
+-startupitem.stop	\
+-"su ${dbuser} -c \"\${PGCTL} -D \${POSTGRESQL83DATA:=${dbdir}} stop -s -m fast\""
++name            postgresql83-server
++version         8.3.4
++categories      databases
++platforms       darwin
++maintainers     mww jwa
++description     Run postgresql83 as a server
++
++set libdir      ${prefix}/lib/postgresql83
++set logdir      ${prefix}/var/log/postgresql83
++set dbdir       ${prefix}/var/db/postgresql83/defaultdb
++set dbpid       ${dbdir}/postmaster.pid
++set dbuser      postgres
++set dbgrp       postgres
++
++long_description \
++    Run postgresql83 as a server.  After installation:\n\
++    \nCreate a database instance, with\n\
++    %% sudo mkdir -p ${dbdir}\n\
++    %% sudo chown ${dbuser}:${dbgrp} ${dbdir}\n\
++    %% sudo su ${dbuser} -c \'${libdir}/bin/initdb -D ${dbdir}\'\n\
++    \nTo load or activate the startup deamon, run:\n\
++    %% sudo launchctl load -w /Library/LaunchDaemons/org.macports.${name}.plist\
++    \nTo unload the startup deamon, run:\n\
++    %% sudo launchctl unload -w /Library/LaunchDaemons/org.macports.${name}.plist\n\
++    \nRun 'port install pgadmin3' to administer PostgreSQL\n\
++    \nRun 'port install slony1' to manage replication for PostgreSQL\n\
++    \nTo tweak your DBMS, consider increasing the value of kern.sysv.shmmax in /etc/sysctl.conf
++
++
++homepage        http://www.postgresql.org/
++master_sites    postgresql
++
++livecheck.check regex
++livecheck.url   ${homepage}/versions.rss
++livecheck.regex (8.3.\[0-9\]+)
++
++depends_run     port:postgresql83
++
++fetch           {}
++checksum        {}
++extract         {}
++use_configure   no
++build           {}
++
++startupitem.create      yes
++startupitem.name        ${name}
++startupitem.logfile     ${logdir}/postgres.log
++startupitem.logevents   yes
++startupitem.init        "PGCTL=${libdir}/bin/pg_ctl"
++startupitem.start   \
++    "su ${dbuser} -c \"\${PGCTL} -D \${POSTGRESQL83DATA:=${dbdir}} start -l ${logdir}/postgres.log\""
++startupitem.stop    \
++    "su ${dbuser} -c \"\${PGCTL} -D \${POSTGRESQL83DATA:=${dbdir}} stop -s -m fast\""
++startupitem.restart \
++    "su ${dbuser} -c \"\${PGCTL} -D \${POSTGRESQL83DATA:=${dbdir}} restart -s -m fast\""
++startupitem.pidfile     auto ${dbpid}
+ 
+ destroot {
+-	addgroup ${dbgrp}
+-	set gid [existsgroup ${dbgrp}]
+-	adduser ${dbuser} shell=/bin/sh gid=${gid} \
+-		home=${prefix}/var/db/postgresql83 \
+-		realname=PostgreSQL-83\ Server
+-	xinstall -m 755 -d ${destroot}${logdir}
+-	system "touch ${destroot}${logdir}/postgres.log"
+-	system "chown ${dbuser}:${dbgrp} ${destroot}${logdir}/postgres.log"
++    addgroup ${dbgrp}
++    set gid [existsgroup ${dbgrp}]
++    adduser ${dbuser} shell=/bin/sh gid=${gid} \
++        home=${prefix}/var/db/postgresql83 \
++        realname=PostgreSQL-83\ Server
++
++    # Check the permissions of this logdir for postgres user
++    xinstall -m 755 -d ${destroot}${logdir}
++    system "chown ${dbuser}:${dbgrp} ${destroot}${logdir}"
++    system "touch ${destroot}${logdir}/postgres.log"
++    system "chown ${dbuser}:${dbgrp} ${destroot}${logdir}/postgres.log"
+ }
+ 
+ post-install {
+-	ui_msg "\nTo create a database instance, after install do\n\
+-		sudo mkdir -p ${dbdir}\n\
+-		sudo chown ${dbuser}:${dbgrp} ${dbdir}\n\
+-		sudo su ${dbuser} -c \'${libdir}/bin/initdb -D ${dbdir}\'"
+-	ui_msg "\nTo tweak your DBMS, consider increasing kern.sysv.shmmax\
+-		by adding an increased kern.sysv.shmmax .. to /etc/sysctl.conf"
++    ui_msg "\nTo create a database instance, after install do\n\
++        %% sudo mkdir -p ${dbdir}\n\
++        %% sudo chown ${dbuser}:${dbgrp} ${dbdir}\n\
++        %% sudo su ${dbuser} -c \'${libdir}/bin/initdb -D ${dbdir}\'\n\
++        \nTo tweak your DBMS, consider increasing kern.sysv.shmmax\
++        by adding an increased kern.sysv.shmmax .. to /etc/sysctl.conf\n\
++        \nTo load the startup deamon, run:\n\
++        %% sudo launchctl load -w /Library/LaunchDaemons/org.macports.${name}.plist\n\
++        \nTo unload the startup deamon, run:\n\
++        %% sudo launchctl unload -w /Library/LaunchDaemons/org.macports.${name}.plist\n\
++        \nRun 'port install pgAdmin3' to administer PostgreSQL\n\
++        \nRun 'port install slony1' to manage replication for PostgreSQL\n"
+ }
+ 
+-livecheck.check	regex
+-livecheck.url	${homepage}
+-livecheck.regex	(8.3.\[0-9\]+)
+-

@@ -1,0 +1,50 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+# $Id$
+
+PortSystem      1.0
+PortGroup ruby  1.0
+
+# When the ruby PortGroup is declared within a Portfile, the following
+# variables are provided during port install.
+#
+# ruby.version: The MacPorts Ruby version.
+# ruby.bin:     The Ruby binary location.
+# ruby.lib:     Path to the Ruby vendorlibdir directory (ie, ${prefix}/lib/ruby/vendor_ruby/${ruby.version})
+# ruby.arch:    The name for the Ruby architecture-dependent directory name (ie, i686-darwin8.10.1).
+# ruby.archlib: Path to the Ruby vendor archdir (ie, ${ruby.lib}/${ruby.arch}).
+
+ruby.setup      {postgres ruby-pg} 0.7.9 \
+                setup.rb {README doc sample} \
+				rubyforge:44546:ruby-pg
+revision        0
+distname        ${ruby.module}-${version}
+
+maintainers     nomaintainer
+description     Ruby API for the PostgreSQL database
+long_description \
+    This is the Ruby library for accessing PostgreSQL \
+    databases from within Ruby.  It works with PostgreSQL 8.3.
+
+categories-append   databases
+
+homepage        http://rubyforge.org/projects/ruby-pg
+master_sites    http://rubyforge.org/frs/download.php/44546/
+
+distfiles       ruby-pg-0.7.9.2008.10.05.tar.gz
+checksums   \
+    ruby-pg-0.7.9.2008.10.05.tar.gz \
+        md5 63eb62524165c6db25decc97216ff9fd \
+        sha1 7115ac7aed6a8a1f7514e3ad59b12f6f5f7405f5 \
+        rmd160 cb66ac3adcb8d226a5f14f007613cb944d82e697
+
+depends_lib-append      port:postgresql83
+
+configure.args-append \
+    --with-pgsql-include=${prefix}/include/postgresql83 \
+    --with-pgsql-lib=${prefix}/lib/postgresql83
+
+configure.env-append \
+    POSTGRES_LIB="${prefix}/lib/postgresql83 -L${prefix}/lib -lssl -lcrypto" \
+    POSTGRES_INCLUDE="${prefix}/include/postgresql83 -I${prefix}/include"
+

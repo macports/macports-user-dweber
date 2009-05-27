@@ -1,0 +1,154 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>5.7.&nbsp;StartupItems</title>
+<link rel="stylesheet" href="reference.startupitems_files/docbook.css" type="text/css">
+<link rel="stylesheet" href="print.css" type="text/css" media="print">
+<meta name="generator" content="DocBook XSL Stylesheets V1.73.2">
+<link rel="start" href="http://guide.macports.org/chunked/index.html" title="MacPorts Guide"><link rel="up" href="http://guide.macports.org/chunked/reference.html" title="Chapter&nbsp;5.&nbsp;Portfile Reference"><link rel="prev" href="http://guide.macports.org/chunked/reference.tcl-extensions.html" title="5.6.&nbsp;Tcl Extensions"><link rel="next" href="http://guide.macports.org/chunked/reference.livecheck.html" title="5.8.&nbsp;Livecheck / Distcheck"></head><body><div class="toc"><dl><dt><span class="chapter"><a href="http://guide.macports.org/chunked/introduction.html">1. Introduction</a></span></dt><dt><span class="chapter"><a href="http://guide.macports.org/chunked/installing.html">2. Installing MacPorts</a></span></dt><dd><dl><dt><span class="section"><a href="http://guide.macports.org/chunked/installing.html#installing.x11">2.1. Install X11</a></span></dt><dt><span class="section"><a href="http://guide.macports.org/chunked/installing.xcode.html">2.2. Install Xcode Tools</a></span></dt><dt><span class="section"><a href="http://guide.macports.org/chunked/installing.macports.html">2.3. Install MacPorts</a></span></dt><dt><span class="section"><a href="http://guide.macports.org/chunked/installing.shell.html">2.4. MacPorts and the Shell</a></span></dt></dl></dd><dt><span class="chapter"><a href="http://guide.macports.org/chunked/using.html">3. Using MacPorts</a></span></dt><dd><dl><dt><span class="section"><a href="http://guide.macports.org/chunked/using.html#using.port">3.1. The port Command</a></span></dt><dt><span class="section"><a href="http://guide.macports.org/chunked/using.variants.html">3.2. Port Variants</a></span></dt><dt><span class="section"><a href="http://guide.macports.org/chunked/using.common-tasks.html">3.3. Common Tasks</a></span></dt><dt><span class="section"><a href="http://guide.macports.org/chunked/using.binaries.html">3.4. Port Binaries</a></span></dt></dl></dd><dt><span class="chapter"><a href="http://guide.macports.org/chunked/development.html">4. Portfile Development</a></span></dt><dd><dl><dt><span class="section"><a href="http://guide.macports.org/chunked/development.html#development.introduction">4.1. Portfile Introduction</a></span></dt><dt><span class="section"><a href="http://guide.macports.org/chunked/development.creating-portfile.html">4.2. Creating a Portfile</a></span></dt><dt><span class="section"><a href="http://guide.macports.org/chunked/development.examples.html">4.3. Example Portfiles</a></span></dt><dt><span class="section"><a href="http://guide.macports.org/chunked/development.variants.html">4.4. Port Variants</a></span></dt><dt><span class="section"><a href="http://guide.macports.org/chunked/development.patches.html">4.5. Patch Files</a></span></dt><dt><span class="section"><a href="http://guide.macports.org/chunked/development.local-repositories.html">4.6. Local Portfile Repositories</a></span></dt><dt><span class="section"><a href="http://guide.macports.org/chunked/development.practices.html">4.7. Portfile Best Practices</a></span></dt></dl></dd><dt><span class="chapter"><a href="http://guide.macports.org/chunked/reference.html">5. Portfile Reference</a></span></dt><dd><dl><dt><span class="section"><a href="http://guide.macports.org/chunked/reference.html#reference.keywords">5.1. Global Keywords</a></span></dt><dt><span class="section"><a href="http://guide.macports.org/chunked/reference.variables.html">5.2. Global Variables</a></span></dt><dt><span class="section"><a href="http://guide.macports.org/chunked/reference.phases.html">5.3. Port Phases</a></span></dt><dt><span class="section"><a href="http://guide.macports.org/chunked/reference.dependencies.html">5.4. Dependencies</a></span></dt><dt><span class="section"><a href="http://guide.macports.org/chunked/reference.variants.html">5.5. Variants</a></span></dt><dt><span class="section"><a href="http://guide.macports.org/chunked/reference.tcl-extensions.html">5.6. Tcl Extensions</a></span></dt><dt><span class="section"><a href="http://guide.macports.org/chunked/reference.startupitems.html">5.7. StartupItems</a></span></dt><dt><span class="section"><a href="http://guide.macports.org/chunked/reference.livecheck.html">5.8. Livecheck / Distcheck</a></span></dt><dt><span class="section"><a href="http://guide.macports.org/chunked/reference.portgroup.html">5.9. PortGroups</a></span></dt></dl></dd><dt><span class="chapter"><a href="http://guide.macports.org/chunked/internals.html">6. MacPorts Internals</a></span></dt><dd><dl><dt><span class="section"><a href="http://guide.macports.org/chunked/internals.html#internals.hierarchy">6.1. File Hierarchy</a></span></dt><dt><span class="section"><a href="http://guide.macports.org/chunked/internals.configuration-files.html">6.2. Configuration Files</a></span></dt><dt><span class="section"><a href="http://guide.macports.org/chunked/internals.images.html">6.3. Port Images</a></span></dt><dt><span class="section"><a href="http://guide.macports.org/chunked/internals.apis.html">6.4. APIs and Libs</a></span></dt><dt><span class="section"><a href="http://guide.macports.org/chunked/internals.registry.html">6.5. The MacPorts Registry</a></span></dt></dl></dd><dt><span class="chapter"><a href="http://guide.macports.org/chunked/project.html">7. MacPorts Project</a></span></dt><dd><dl><dt><span class="section"><a href="http://guide.macports.org/chunked/project.html#project.tickets">7.1. Creating Trac Tickets</a></span></dt><dt><span class="section"><a href="http://guide.macports.org/chunked/project.contributing.html">7.2. Contributing to MacPorts</a></span></dt><dt><span class="section"><a href="http://guide.macports.org/chunked/project.update-policies.html">7.3. Port Update Policies</a></span></dt><dt><span class="section"><a href="http://guide.macports.org/chunked/project.membership.html">7.4. MacPorts Membership</a></span></dt><dt><span class="section"><a href="http://guide.macports.org/chunked/project.portmgr.html">7.5. The PortMgr Team</a></span></dt></dl></dd><dt><span class="chapter"><a href="http://guide.macports.org/chunked/guide-terms.html">8. MacPorts Guide Terms</a></span></dt><dd><dl><dt><span class="glossary"><a href="http://guide.macports.org/chunked/guide-terms.html#glossary">Glossary</a></span></dt></dl></dd></dl></div><div class="book"><div class="navheader"><table summary="Navigation header" width="100%"><tbody><tr><th colspan="3" align="center">5.7.&nbsp;StartupItems</th></tr><tr><td align="left" width="20%"><a accesskey="p" href="http://guide.macports.org/chunked/reference.tcl-extensions.html">Prev</a>&nbsp;</td><th align="center" width="60%">Chapter&nbsp;5.&nbsp;Portfile Reference</th><td align="right" width="20%">&nbsp;<a accesskey="n" href="http://guide.macports.org/chunked/reference.livecheck.html">Next</a></td></tr></tbody></table><hr></div><div class="section" xml:lang="en" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both;"><a id="reference.startupitems"></a><a href="#reference.startupitems">5.7.&nbsp;StartupItems</a></h2></div></div></div><p>A StartupItem is a MacPorts facility to run "daemons," a Unix term for
+  programs that run continuously in the background, rather than under the
+  direct control of a user; for example, mail servers, network listeners, etc.
+  Ports that use StartupItem keywords create Mac OS X scripts for <a class="ulink" href="http://developer.apple.com/macosx/launchd.html" target="_top">launchd</a>, which
+  is the Apple facility introduced with Mac OS X 10.4 to replace xinetd for
+  starting and managing daemons. To support <span class="command"><strong>launchd</strong></span>, a
+  program named <span class="command"><strong>daemondo</strong></span> is provided by MacPorts base that
+  serves as an adapter between Mac OS X's <span class="command"><strong>launchd</strong></span> and
+  daemons (“<span class="quote">executable</span>” StartupItems) or traditional Unix startup
+  scripts that start daemons (“<span class="quote">script</span>” StartupItems).</p><p>There are three categories of StartupItem keywords. Those that trigger
+  StartupItem creation and logging, those that specify attributes of
+  “<span class="quote">executable</span>” StartupItems, and those that specify attributes of
+  “<span class="quote">script</span>” StartupItems.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>The variable <code class="varname">startupitem_type</code> in
+    <code class="filename">${prefix}/etc/macports/macports.conf</code> may be set to
+    <code class="option">none</code> to globally override all StartupItem keywords found
+    in Portfiles; this prevents StartupItems from being created.</p></div><div class="section" xml:lang="en" lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="reference.startupitems.attributes"></a><a href="#reference.startupitems.attributes">5.7.1.&nbsp;StartupItem Attributes</a></h3></div></div></div><p>The keywords in this section may be used with either
+    “<span class="quote">executable</span>” or “<span class="quote">script</span>” StartupItems (see
+    below).</p><div class="variablelist"><dl><dt><span class="term">startupitem.create</span></dt><dd><p>Trigger the creation of a StartupItem.</p><div class="itemizedlist"><ul type="disc"><li><p>Default: <code class="option">no</code></p></li><li><p>Example:</p><pre class="programlisting">startupitem.create      yes</pre></li></ul></div></dd><dt><span class="term">startupitem.name</span></dt><dd><p>Sets the name for the StartupItem. Defaults to the name of the
+          port, so this keyword is usually unnecessary.</p><div class="itemizedlist"><ul type="disc"><li><p>Default: <code class="varname">${name}</code></p></li><li><p>Example:</p><pre class="programlisting">startupitem.name        dhcpd</pre></li></ul></div></dd><dt><span class="term">startupitem.logfile</span></dt><dd><p>Path to a logfile for logging events about the lifetime of the
+          StartupItem. Depending on the type of StartupItem, and the manner in
+          which it is started, standard output from the daemon may also be
+          directed to the logfile.</p><div class="itemizedlist"><ul type="disc"><li><p>Default: <code class="filename">/dev/null</code></p></li><li><p>Example:</p><pre class="programlisting">startupitem.logfile     ${prefix}/var/log/mydaemon.log</pre></li></ul></div></dd><dt><span class="term">startupitem.logevents</span></dt><dd><p>Control whether or not to log events to the log file. If
+          logevents is set, events with timestamps are logged to the
+          logfile.</p><div class="itemizedlist"><ul type="disc"><li><p>Default: <code class="option">no</code></p></li><li><p>Example:</p><pre class="programlisting">startupitem.logevents   yes</pre></li></ul></div></dd><dt><span class="term">startupitem.netchange</span></dt><dd><p>Cause the daemon to be restarted when a change in network
+          state is detected.</p><div class="itemizedlist"><ul type="disc"><li><p>Default: <code class="option">no</code></p></li><li><p>Example:</p><pre class="programlisting">startupitem.netchange   yes</pre></li></ul></div></dd></dl></div></div><div class="section" xml:lang="en" lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="reference.startupitems.executable"></a><a href="#reference.startupitems.executable">5.7.2.&nbsp;Executable StartupItems</a></h3></div></div></div><p>Daemons run continuously, so monitoring the health of daemon
+    processes and restarting them if they die is an important StartupItems'
+    feature. “<span class="quote">Executable</span>” StartupItems are preferred over
+    “<span class="quote">script</span>” StartupItems because <span class="command"><strong>daemondo</strong></span>
+    launches the daemon <span class="emphasis"><em>directly</em></span>, rather than
+    <span class="emphasis"><em>indirectly</em></span> via a script, and therefore it
+    automatically knows how to monitor a daemon process and restart it if it
+    dies. Daemons used with “<span class="quote">executable</span>” StartupItems may be
+    programs or scripts (shell, perl, python, etc.), but when a script is used
+    the script <span class="emphasis"><em>itself</em></span> must be the daemon, rather than
+    merely what launches the daemon (for the latter,“<span class="quote">script</span>”
+    StartupItems are to be used).</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>For a given port, the “<span class="quote">executable</span>” StartupItem
+      keyword may not be used with any keywords in the “<span class="quote">script</span>”
+      StartupItem category.</p></div><div class="variablelist"><dl><dt><span class="term">startupitem.executable</span></dt><dd><p>Specifies the name of the daemon to be run. It may have
+          multiple arguments, but they must be appropriate for a call to exec;
+          arbitrary shell code may not be used.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>Some daemons "daemonize" by detaching themselves from the
+            controlling tty before sending themselves to the background, thus
+            making themselves a child of the original process. A daemon to be
+            started with <code class="code">startupitem.executable</code> must not be
+            allowed to do this (daemondo will think the process has died and
+            start another instance); this can usually be turned off with a
+            switch so the daemon does not detach itself (runs as a foreground
+            process).</p></div><div class="itemizedlist"><ul type="disc"><li><p>Default: none</p></li><li><p>Example:</p><pre class="programlisting">startupitem.executable  ${prefix}/sbin/vm-pop3d -d 10 -t 600</pre></li></ul></div><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>Do not wrap values in quotes if passing arguments to the
+            daemon; “<span class="quote">executable</span>” StartupItem elements must be
+            tagged individually so the spaces between arguments serve as
+            delimiters for “<span class="quote">string</span>” tags. For example, this
+            startupitem key/value pair:</p><pre class="programlisting">startupitem.executable    ${prefix}/sbin/vm-pop3d -d 10 -t 600</pre><p> generates a .plist file with these tags:</p><pre class="programlisting">&lt;key&gt;ProgramArguments&lt;/key&gt;
+&lt;array&gt;
+    &lt;string&gt;/opt/local/bin/daemondo&lt;/string&gt;
+    &lt;string&gt;--label=vm-pop3d&lt;/string&gt;
+    &lt;string&gt;--start-cmd&lt;/string&gt;
+    &lt;string&gt;/opt/local/sbin/vm-pop3d&lt;/string&gt;
+    &lt;string&gt;-d&lt;/string&gt;
+    &lt;string&gt;10&lt;/string&gt;
+    &lt;string&gt;-t&lt;/string&gt;
+    &lt;string&gt;600&lt;/string&gt;
+    &lt;string&gt;;&lt;/string&gt;
+&lt;/array&gt;</pre></div></dd></dl></div></div><div class="section" xml:lang="en" lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="reference.startupitems.script"></a><a href="#reference.startupitems.script">5.7.3.&nbsp;Script StartupItems</a></h3></div></div></div><p>StartupItems of type “<span class="quote">script</span>” use
+    <span class="command"><strong>daemondo</strong></span> to launch a daemon
+    <span class="emphasis"><em>indirectly</em></span> via a startup script. A typical snippet of
+    a startup script that may be used with a “<span class="quote">script</span>” StartupItem
+    is shown below. Notice that the script is not a daemon; rather the script
+    indirectly launches the vm-pop3d daemon.</p><pre class="programlisting">#!/bin/sh
+
+case "$1" in
+    start)
+        echo -n "Starting vm-pop3d: "
+        /opt/local/sbin/vm-pop3d -d 10 -t 600
+
+[... trimmed ...]</pre><p>But if a script itself is a daemon, use the
+    “<span class="quote">executable</span>” StartupItem type since that way it will be
+    launched directly and its health tracked automatically. When using
+    “<span class="quote">script</span>” StartupItems, the <code class="code">startupitem.pidfile</code>
+    keyword must be used if you want <span class="command"><strong>daemondo</strong></span> to monitor a
+    daemon process and restart it if it dies.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>For a given port, StartupItem keywords in category
+      “<span class="quote">script</span>” may not be used with an “<span class="quote">executable</span>”
+      StartupItem keyword.</p></div><div class="variablelist"><dl><dt><span class="term">startupitem.start, </span><span class="term">startupitem.stop, </span><span class="term">startupitem.restart</span></dt><dd><p>Specify a shell script to start, stop, and restart the daemon.
+          In the absence of <code class="code">startupitem.restart</code>, the daemon will
+          be restarted by taking the stop action, followed by the start
+          action.</p><div class="itemizedlist"><ul type="disc"><li><p>Default: none</p></li><li><p>Examples:</p><pre class="programlisting">startupitem.start       "${prefix}/share/mysql/mysql.server start"
+startupitem.stop        "${prefix}/share/mysql/mysql.server stop"
+startupitem.restart     "${prefix}/share/mysql/mysql.server restart"</pre></li></ul></div><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>Wrap the stop, start, and restart values in quotes so they
+            will be placed in the wrapper tagged as a single element.</p></div></dd><dt><span class="term">startupitem.init</span></dt><dd><p>Shell code that will be executed prior to any of the options
+          <code class="code">startupitem.start</code>, <code class="code">startupitem.stop</code> and
+          <code class="code">startupitem.restart</code>.</p><div class="itemizedlist"><ul type="disc"><li><p>Default: none</p></li><li><p>Example:</p><pre class="programlisting">startupitem.init        BIN=${prefix}/sbin/bacula-fd</pre></li></ul></div></dd><dt><span class="term">startupitem.pidfile</span></dt><dd><p>This keyword must be defined properly for
+          <span class="command"><strong>daemondo</strong></span> to be able to monitor daemons launched
+          via “<span class="quote">script</span>” StartupItems and restart them if they die.
+          It specifies two things: a process id (PID) file handling method,
+          and a pidfile name and path.</p><div class="itemizedlist"><ul type="disc"><li><p>Default: <code class="literal">none
+              ${prefix}/var/run/${name}.pid</code></p><p>Default: [none] |
+              [<code class="filename">${prefix}/var/run/${name}.pid</code>]</p></li><li><p>Values [none auto manual clean]
+              [<em class="replaceable"><code>/path/to/pidfile</code></em>]</p></li><li><p>Example:</p><pre class="programlisting">startupitem.pidfile     auto ${prefix}/var/run/${name}.pidfile</pre></li></ul></div><p>PID file handling options:</p><div class="itemizedlist"><ul type="disc"><li><p><code class="option">none</code> - daemondo will not create or track
+              a PID file, so it won't know when a daemon dies.</p></li><li><p><code class="option">auto</code> - The started process is expected to
+              create a PID file that contains the PID of the running daemon;
+              daemondo then reads the PID from the file and tracks the
+              process. The started process must delete the PID file if this is
+              necessary.</p></li><li><p><code class="option">clean</code> - The started process is expected
+              to create a PID file that contains the PID of the running
+              daemon; daemondo then reads the PID from the file and tracks the
+              process, and deletes the PID file if it detects the daemon has
+              died.</p></li><li><p><code class="option">manual</code> - This option should only be used
+              if an “<span class="quote">executable</span>” StartupItem could be used
+              (daemondo launches a daemon directly) <span class="emphasis"><em>and</em></span> a
+              port author wants a PID file written for some special use. A PID
+              file is not needed to detect process death for daemons launched
+              directly by daemondo. As with executable StartupItems, daemondo
+              remembers the PID of the launched process and tracks it
+              automatically.</p></li></ul></div></dd></dl></div></div><div class="section" xml:lang="en" lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="reference.startupitems.launchd"></a><a href="#reference.startupitems.launchd">5.7.4.&nbsp;Loading / Unloading StartupItems into launchd</a></h3></div></div></div><p>A port with a StartupItem places a link to a .plist file for the
+    port's daemon within <code class="filename">/Library/LaunchDaemons/</code>. A
+    .plist file is an XML file; MacPorts installs .plist files tagged as
+    “<span class="quote">disabled</span>” for the sake of security. You may enable a startup
+    script (tag the.plist file as “<span class="quote">enabled</span>”) and load it into
+    <span class="command"><strong>launchd</strong></span> with a single command as shown.</p><pre class="programlisting"><code class="prompt">%%</code> <strong class="userinput"><code>sudo launchctl load -w /Library/LaunchDaemons/org.macports.mysql5.plist</code></strong></pre><p>You may stop a running startup script, disable it (tag the.plist
+    file as “<span class="quote">disabled</span>”), and unload it from
+    <span class="command"><strong>launchd</strong></span> with a single command as shown.</p><pre class="programlisting"><code class="prompt">%%</code> <strong class="userinput"><code>sudo launchctl unload -w /Library/LaunchDaemons/org.macports.mysql5.plist</code></strong></pre></div><div class="section" xml:lang="en" lang="en"><div class="titlepage"><div><div><h3 class="title"><a id="reference.startupitems.internals"></a><a href="#reference.startupitems.internals">5.7.5.&nbsp;StartupItem Internals</a></h3></div></div></div><p>During port installation a MacPorts StartupItem creates a .plist
+    file in <code class="filename">${prefix}/etc/LaunchDaemons/</code>, and places a
+    symbolic link to the .plist file within
+    <code class="filename">/Library/LaunchDaemons/</code>.</p><p>For example, the StartupItem for the mysql5 port is
+    <code class="filename">org.macports.mysql5.plist</code>, and it is linked as
+    shown.</p><pre class="programlisting"><code class="prompt">%%</code> <strong class="userinput"><code>ls -l /Library/LaunchDaemons</code></strong></pre><pre class="screen">org.macports.mysql5.plist -&gt;
+     /opt/local/etc/LaunchDaemons/org.macports.mysql5/org.macports.mysql5.plist</pre><p>For “<span class="quote">script</span>” StartupItems, in addition to a .plist
+    file, a wrapper is also created.</p><pre class="programlisting"><code class="prompt">%%</code> <strong class="userinput"><code>ls -l /opt/local/etc/LaunchDaemons/org.macports.mysql5/</code></strong></pre><pre class="screen">-rwxr-xr-x   2 root  wheel  475 Aug  2 14:16 mysql5.wrapper
+-rw-r--r--   2 root  wheel  975 Aug  2 14:16 org.macports.mysql5.plist</pre><p>The
+    wrapper manipulates the script as specified in the startupitem.start and
+    startupitem.stop keywords. An example wrapper script snippet is shown
+    below.</p><pre class="programlisting">#!/bin/sh
+
+# MacPorts generated daemondo support script
+
+# Start
+Start()
+{
+    /opt/local/share/mysql5/mysql/mysql.server start
+}
+
+# Stop
+Stop()
+{
+    /opt/local/share/mysql5/mysql/mysql.server stop
+}
+
+[... trimmed ...]</pre></div></div><div class="navfooter"><hr><table summary="Navigation footer" width="100%"><tbody><tr><td align="left" width="40%"><a accesskey="p" href="http://guide.macports.org/chunked/reference.tcl-extensions.html">Prev</a>&nbsp;</td><td align="center" width="20%"><a accesskey="u" href="http://guide.macports.org/chunked/reference.html">Up</a></td><td align="right" width="40%">&nbsp;<a accesskey="n" href="http://guide.macports.org/chunked/reference.livecheck.html">Next</a></td></tr><tr><td align="left" valign="top" width="40%">5.6.&nbsp;Tcl Extensions&nbsp;</td><td align="center" width="20%"><a accesskey="h" href="http://guide.macports.org/chunked/index.html">Home</a></td><td align="right" valign="top" width="40%">&nbsp;5.8.&nbsp;Livecheck / Distcheck</td></tr></tbody></table></div></div></body></html>

@@ -1,0 +1,95 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
+
+# $Id$
+
+PortSystem 1.0
+
+name        pgbash
+version     7.3 
+
+categories  databases devel
+
+maintainers gmail.com:darren.weber.lists
+
+description Pgbash is a BASH shell with PostgreSQL functionality. 
+
+long_description \
+Pgbash is a BASH shell that includes the functionality for accessing PostgreSQL. It is possible to execute SQL in a shell script for batch processing, and execute SQL directly in an interactive bash environment. Also, pgbash has convenient functionality for creating simple web applications. 
+
+homepage        http://www.psn.co.jp/PostgreSQL/pgbash/index-e.html
+
+master_sites    \
+    http://www.psn.co.jp/PostgreSQL/pgbash/ \
+    ftp://www.psn.co.jp/pub/PostgreSQL/pgbash/ \
+    ftp://ftp.gnu.org/gnu/bash/
+
+distfiles \
+    pgbash-7.3.tar.gz \
+    bash-2.05a.tar.gz
+
+checksums \
+    pgbash-7.3.tar.gz \
+        md5 e3e33423208a5a538708dc92001abf67 \
+        sha1 730a4879bc74e03de78445b94aad94efda75c033 \
+        rmd160 0658dcbb5db8d492fb041c58ac29c623f18a2d06 \
+    bash-2.05a.tar.gz \
+        md5  eeabc3f624861c4a8a687f7701db3d06 \
+        sha1 1a74a4a4e4f771484cbf22786689fe33ab6d36d3 \
+        rmd160 136302f57bf56668f042938de8de0174d51ddbf9
+
+
+# build dependencies (noted on the download web site)
+#> gcc -v
+#gcc version 2.7.2.1
+#> bison --version
+#GNU Bison version 1.25
+#> flex --version
+#flex version 2.5.4
+#
+#The version of each tool is O.K., if it is new or same as the
+#version shown above. (I think that it is O.K. if it is compiled normally,
+#even if the tool is older than the above-mentioned.)
+
+
+platforms       darwin
+depends_build   port:bison \
+                port:flex \
+                port:gmake
+depends_lib     port:postgresql83
+
+# maybe it should depend on postgresql7; this source package was last
+# updated in 2003!
+
+#
+# running my test build in /usr/src/pgbash-7.3/src/bash-2.05a
+#
+
+
+post-extract {
+    system "mv ${worksrcpath}/bash-2.05a ${worksrcpath}/pgbash-7.3/src/"
+    system "cd ${worksrcpath}/pgbash-7.3/src/bash-2.05a-patch/ && make"
+    worksrcpath="${worksrcpath}/pgbash-7.3/src/bash-2.05a/"
+}
+
+configure.env-append \
+    PG_CONFIG=${prefix}/lib/postgresql83/bin/pg_config
+
+configure.args-append \
+    --pginc-prefix=${prefix}/include/postgresql83 \
+    --pglib-prefix=${prefix}/lib/postgresql83
+
+# How to change into postgres super user and modify destroot phase?
+
+#Please execute 'make install' as a postgres super user. 'make install'
+#copies Pgbash to /usr/local/bin directory and copies Pgbashrc to /etc
+#directory.
+#
+#pgbash-7.3/src/bash-2.05a/pgbash ==> /usr/local/bin/pgbash
+#pgbash-7.3/rc/pgbashrc           ==> /etc/pgbashrc
+#
+#If you can not work as a postgres super user, please copy Pgbash to a
+#suitable directory directory and copy Pgbash to the home directory.
+#
+#cp pgbash-7.3/src/bash-2.05a/pgbash ~/pgbash
+#cp pgbash-7.3/rc/pgbashrc           ~/.pgbashrc
+
