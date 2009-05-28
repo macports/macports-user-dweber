@@ -1,32 +1,45 @@
+# -*- coding: utf-8; mode: tcl; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- vim:fenc=utf-8:ft=tcl:et:sw=4:ts=4:sts=4
 # $Id$
 
-PortSystem 1.0
+PortSystem      1.0
 
-name		cmake
-version		2.6.4
-categories	devel
-maintainers	css
-description	Cross-platform make
+name		    cmake
+version		    2.6.4
+revision        1
+set branch      [join [lrange [split ${version} .] 0 1] .]
+
+categories	    devel
+maintainers	    css dweber
+description	    Cross-platform make
+
 long_description	\
-	An extensible, open-source system that manages the build 	\
-	process in an operating system and compiler independent manner. \
-	Unlike many cross-platform systems, CMake is designed to be 	\
-	used in conjunction with the native build environment.
-homepage	http://www.cmake.org/
-platforms	darwin freebsd
-master_sites	http://www.cmake.org/files/v2.6/
-checksums	md5 50f387d0436696c4a68b5512a72c9cde \
-		sha1 c7e295683e061c2ed19773a1f0444972f75db092 \
-		rmd160 e4217067537f76e52317514cb5bb0cf38733d16a
-configure.args	--mandir=/share/man --docdir=/share/doc/cmake
+An extensible, open-source system that manages the build process in an operating system and compiler independent manner.  Unlike many cross-platform systems, CMake is designed to be used in conjunction with the native build environment.
+
+homepage        http://www.cmake.org/
+platforms       darwin freebsd
+master_sites	http://www.cmake.org/files/v${branch}/
+checksums	    md5 50f387d0436696c4a68b5512a72c9cde \
+		        sha1 c7e295683e061c2ed19773a1f0444972f75db092 \
+		        rmd160 e4217067537f76e52317514cb5bb0cf38733d16a
+configure.args-append \
+    --mandir=/share/man \
+    --docdir=/share/doc/cmake
 
 post-destroot {
 	xinstall -d -m 0755 ${destroot}${prefix}/share/emacs/site-lisp
 	xinstall -m 0644 ${worksrcpath}/Docs/cmake-mode.el \
 		${destroot}${prefix}/share/emacs/site-lisp
 	xinstall -d -m 0755 ${destroot}${prefix}/share/doc/cmake
-	xinstall -m 0644 -W ${worksrcpath}/Docs cmake-indent.vim \
-		cmake-syntax.vim ${destroot}${prefix}/share/doc/cmake
+	xinstall -m 0644 -W ${worksrcpath}/Docs \
+        cmake-indent.vim cmake-syntax.vim \
+        ${destroot}${prefix}/share/doc/cmake
+    # Change the content of FindITK.cmake to find MacPorts libs
+    set findITK [glob ${destroot}${prefix}/share/cmake-${branch}/Modules/FindITK.cmake]
+    set findVTK [glob ${destroot}${prefix}/share/cmake-${branch}/Modules/FindVTK.cmake]
+    set stdlib /usr/local/lib
+    set maclib ${prefix}/lib
+    reinplace "s|${stdlib}\\(.*\\)$|${maclib}\\1\\\n    ${stdlib}\\1|g" ${findITK}
+    reinplace "s|${stdlib}\\(.*\\)$|${maclib}\\1\\\n    ${stdlib}\\1|g" ${findVTK}
 }
 
 livecheck.check regex
