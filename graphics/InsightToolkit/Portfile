@@ -123,10 +123,14 @@ post-destroot {
     # when cmake is updated, deactivated, etc.
     set findITK [glob ${prefix}/share/cmake-*/Modules/FindITK.cmake]
     set findITKbranch [strsed ${findITK} #FindITK#FindITK-${branch}#]
+    copy ${findITK} ${destroot}${findITK}
     copy ${findITK} ${destroot}${findITKbranch}
-    # Change the content of $findITKbranch so it will find this $distname lib
-    reinplace "s|lib/${name}|lib/${distname}|g" ${destroot}${findITKbranch}
-    # Change the content of *.cmake config files
+    # Change the content of $findITK and $findITKbranch, to find MacPorts lib
+    set stdlib /usr/local/lib/InsightToolkit
+    set newlib ${prefix}/lib/InsightToolkit
+    reinplace "s|${stdlib}|${newlib}\\\n    ${newlib}-${branch}\\\n    ${stdlib}|g" ${destroot}${findITK}
+    reinplace "s|${stdlib}|${newlib}\\\n    ${newlib}-${branch}\\\n    ${stdlib}|g" ${destroot}${findITKbranch}
+    # Change the content of ITKConfig.cmake
     reinplace "s|${name}|${distname}|g" ${destroot}${itkLibPath}/ITKConfig.cmake
     copy ${destroot}${itkLibPath}/ITKConfig.cmake ${destroot}${itkLibPath}/itk-${branch}-config.cmake
 }
