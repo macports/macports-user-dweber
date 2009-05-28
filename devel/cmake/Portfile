@@ -3,34 +3,34 @@
 
 PortSystem      1.0
 
-name		    cmake
-version		    2.6.4
+name            cmake
+version         2.6.4
 revision        1
 set branch      [join [lrange [split ${version} .] 0 1] .]
 
-categories	    devel
-maintainers	    css dweber
-description	    Cross-platform make
+categories      devel
+maintainers     css dweber
+description     Cross-platform make
 
-long_description	\
+long_description    \
 An extensible, open-source system that manages the build process in an operating system and compiler independent manner.  Unlike many cross-platform systems, CMake is designed to be used in conjunction with the native build environment.
 
 homepage        http://www.cmake.org/
 platforms       darwin freebsd
-master_sites	http://www.cmake.org/files/v${branch}/
-checksums	    md5 50f387d0436696c4a68b5512a72c9cde \
-		        sha1 c7e295683e061c2ed19773a1f0444972f75db092 \
-		        rmd160 e4217067537f76e52317514cb5bb0cf38733d16a
+master_sites    http://www.cmake.org/files/v${branch}/
+checksums       md5 50f387d0436696c4a68b5512a72c9cde \
+                sha1 c7e295683e061c2ed19773a1f0444972f75db092 \
+                rmd160 e4217067537f76e52317514cb5bb0cf38733d16a
 configure.args-append \
     --mandir=/share/man \
     --docdir=/share/doc/cmake
 
 post-destroot {
-	xinstall -d -m 0755 ${destroot}${prefix}/share/emacs/site-lisp
-	xinstall -m 0644 ${worksrcpath}/Docs/cmake-mode.el \
-		${destroot}${prefix}/share/emacs/site-lisp
-	xinstall -d -m 0755 ${destroot}${prefix}/share/doc/cmake
-	xinstall -m 0644 -W ${worksrcpath}/Docs \
+    xinstall -d -m 0755 ${destroot}${prefix}/share/emacs/site-lisp
+    xinstall -m 0644 ${worksrcpath}/Docs/cmake-mode.el \
+        ${destroot}${prefix}/share/emacs/site-lisp
+    xinstall -d -m 0755 ${destroot}${prefix}/share/doc/cmake
+    xinstall -m 0644 -W ${worksrcpath}/Docs \
         cmake-indent.vim cmake-syntax.vim \
         ${destroot}${prefix}/share/doc/cmake
     # Change the content of FindITK.cmake to find MacPorts libs
