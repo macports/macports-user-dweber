@@ -3,9 +3,6 @@
 
 PortSystem      1.0
 
-# Note: don't change this name, only change the distname, as there are numerous
-# default build assumptions in both cmake and ITK that use this specific name,
-# and many post-destroot hacks in this port that depend on this name.
 name            InsightToolkit
 version         3.12.0
 revision        3
@@ -56,7 +53,12 @@ build.dir       ${workpath}/${distname}-build
 # The parallel build would be nice, but it's not reliable.
 #use_parallel_build  yes
 
-# Global variables, used in variants, where a destroot prefix is appended, when necessary.
+# Global variables, used in variants, where a destroot prefix is appended,
+# when necessary.  There are numerous default build assumptions in both cmake
+# and ITK that use the 'InsightToolkit' name, and many post-destroot hacks in
+# this port that assume this name also.  If the port is renamed, say
+# InsightToolkit312, the post-destroot hacks must use ${itkName}.
+set itkName         InsightToolkit
 set itkBuildBin     ${build.dir}/bin
 set itkIncPath      ${prefix}/include/${distname}
 set itkLibPath      ${prefix}/lib/${distname}
@@ -114,11 +116,11 @@ configure.args-append \
 
 post-destroot {
     # For some reason, cmake does not install into the CMAKE_INSTALL_NAME_DIR
-    move ${destroot}${prefix}/lib/${name}       ${destroot}${itkLibPath}
-    move ${destroot}${prefix}/include/${name}   ${destroot}${itkIncPath}
+    move ${destroot}${prefix}/lib/${itkName}       ${destroot}${itkLibPath}
+    move ${destroot}${prefix}/include/${itkName}   ${destroot}${itkIncPath}
     # Create a symlink from the generic lib and include for InsightToolkit to this version
-    ln -sf ${distname} ${destroot}${prefix}/lib/${name}
-    ln -sf ${distname} ${destroot}${prefix}/include/${name}
+    ln -sf ${distname} ${destroot}${prefix}/lib/${itkName}
+    ln -sf ${distname} ${destroot}${prefix}/include/${itkName}
     # copy FindITK.cmake to a version specific file, which might persist even
     # when cmake is updated, deactivated, etc.
     set findITK [glob ${prefix}/share/cmake-*/Modules/FindITK.cmake]
@@ -129,7 +131,7 @@ post-destroot {
     set maclib ${prefix}/lib/InsightToolkit
     reinplace "s|${stdlib}|${maclib}\\\n    ${maclib}-${branch}\\\n    ${stdlib}|g" ${destroot}${findITKbranch}
     # Change the content of ITKConfig.cmake
-    reinplace "s|${name}|${distname}|g" ${destroot}${itkLibPath}/ITKConfig.cmake
+    reinplace "s|${itkName}|${distname}|g" ${destroot}${itkLibPath}/ITKConfig.cmake
     copy ${destroot}${itkLibPath}/ITKConfig.cmake ${destroot}${itkLibPath}/itk-${branch}-config.cmake
 }
 
@@ -408,7 +410,7 @@ variant wrap requires shared description "USE_WRAP_ITK for external language sup
         port:guile \
         port:tcl
     # The WrapITK install path assumes a prefix of ${prefix}, but without this
-    # variable setting, it will default to "lib/${name}/WrapITK" without the
+    # variable setting, it will default to "lib/${itkName}/WrapITK" without the
     # version specific ${distname}
     set itkWrapInstallPath /lib/${distname}/WrapITK
     configure.args-append \
@@ -436,7 +438,7 @@ variant wrap requires shared description "USE_WRAP_ITK for external language sup
         file attributes ${itkwishSh} -permissions 0755
         ln -s itkwish-${branch} ${destroot}/${prefix}/bin/itkwish
         # Change the content of itkwish
-        reinplace "s|${name}|${distname}|g" ${itkwishSh}
+        reinplace "s|${itkName}|${distname}|g" ${itkwishSh}
         reinplace "s|//|/|g" ${itkwishSh}
         # Reset dynamic library dependency paths for itkwish binary
         set itkwishBin ${destroot}/${itkLibPath}/WrapITK/bin/itkwish
@@ -571,11 +573,11 @@ variant py24 requires wrap conflicts py25 description "python 2.4 wrapper (inclu
         -DPY_SITE_PACKAGES_PATH:PATH=${prefix}/${pySite}
     post-destroot {
         # Change the content of WrapITK.pth (for any python version)
-        reinplace "s|${name}|${distname}|g" ${destroot}/${prefix}/${pySite}/WrapITK.pth
+        reinplace "s|${itkName}|${distname}|g" ${destroot}/${prefix}/${pySite}/WrapITK.pth
         reinplace "s|//|/|g" ${destroot}/${prefix}/${pySite}/WrapITK.pth
         # Change the content of FindWrapITK.cmake (for any python version)
         set findWrapITK [glob ${destroot}/${prefix}/share/cmake-*/Modules/FindWrapITK.cmake]
-        reinplace "s|${name}|${distname}|g" ${findWrapITK}
+        reinplace "s|${itkName}|${distname}|g" ${findWrapITK}
         reinplace "s|//|/|g" ${findWrapITK}
         # Reset dynamic library dependency paths (see proc above)
         resetWrapLibs ${destroot}/${itkLibPath}/WrapITK/lib/*.so
@@ -595,11 +597,11 @@ variant py25 requires wrap conflicts py24 description "python 2.5 wrapper (inclu
         -DPY_SITE_PACKAGES_PATH:PATH=${prefix}/${pySite}
     post-destroot {
         # Change the content of WrapITK.pth (for any python version)
-        reinplace "s|${name}|${distname}|g" ${destroot}/${prefix}/${pySite}/WrapITK.pth
+        reinplace "s|${itkName}|${distname}|g" ${destroot}/${prefix}/${pySite}/WrapITK.pth
         reinplace "s|//|/|g" ${destroot}/${prefix}/${pySite}/WrapITK.pth
         # Change the content of FindWrapITK.cmake (for any python version)
         set findWrapITK [glob ${destroot}/${prefix}/share/cmake-*/Modules/FindWrapITK.cmake]
-        reinplace "s|${name}|${distname}|g" ${findWrapITK}
+        reinplace "s|${itkName}|${distname}|g" ${findWrapITK}
         reinplace "s|//|/|g" ${findWrapITK}
         # Reset dynamic library dependency paths (see proc above)
         resetWrapLibs ${destroot}/${itkLibPath}/WrapITK/lib/*.so
@@ -626,7 +628,7 @@ variant py25 requires wrap conflicts py24 description "python 2.5 wrapper (inclu
 #        -DPY_SITE_PACKAGES_PATH:PATH=${prefix}/${pySite}
 #    post-destroot {
 #        # Change the content of WrapITK.pth (for any python version)
-#        reinplace "s|${name}|${distname}|g" ${destroot}/${prefix}/${pySite}/WrapITK.pth
+#        reinplace "s|${itkName}|${distname}|g" ${destroot}/${prefix}/${pySite}/WrapITK.pth
 #        # Reset dynamic library dependency paths (see proc above)
 #        resetWrapLibs ${destroot}/${itkLibPath}/WrapITK/lib/*.so
 #    }
