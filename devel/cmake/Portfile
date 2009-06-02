@@ -40,6 +40,14 @@ post-destroot {
     set maclib ${prefix}/lib
     reinplace "s|${stdlib}\\(.*\\)$|${maclib}\\1\\\n    ${stdlib}\\1|g" ${findITK}
     reinplace "s|${stdlib}\\(.*\\)$|${maclib}\\1\\\n    ${stdlib}\\1|g" ${findVTK}
+    # ---
+    # Experiment to change the prefix in all .cmake files
+    #set usrPrefix /usr/local
+    #set macPrefix ${prefix}
+    #set cmakeFiles [glob ${destroot}${prefix}/share/cmake-${branch}/Modules/*.cmake]
+    #foreach f ${cmakeFiles} {
+    #    reinplace "s|${usrPrefix}|${macPrefix}|g" ${f}
+    #}
 }
 
 livecheck.check regex
