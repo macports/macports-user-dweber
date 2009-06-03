@@ -4,8 +4,8 @@
 PortSystem      1.0
 
 name            InsightToolkit
-version         3.12.0
-revision        3
+version         3.14.0
+revision        0
 set branch      [join [lrange [split ${version} .] 0 1] .]
 
 categories      graphics math science devel
@@ -25,13 +25,13 @@ distfiles       InsightToolkit-${version}.tar.gz \
                 CableSwig-ITK-${version}.tar.gz
 
 checksums       InsightToolkit-${version}.tar.gz \
-                    md5  0bdf73a88f0d6936496addf036b07215 \
-                    sha1 7db0e20c8cbfe1c12a3ad86428cb6eefd8169f58 \
-                    rmd160 0adcab3705b96db08dbf5110d9a09cc265821a9d \
+                    md5  7edcef07ff67684e1b93e51da5a2ca55 \
+                    sha1 f6e3c6655c207f09fe6f2a4a3bf3cbd6999c0b89 \
+                    ripemd160 b3d630b682695bb58b8401def4872d89c427812d \
                 CableSwig-ITK-${version}.tar.gz \
-                    md5  04a8610e3724e7fef9207a90fd4bfde3 \
-                    sha1 04ab4f03a8e08267b9e78aafea055ef2a5058798 \
-                    rmd160 5758c7ee205a53a205a8a72a721aafeff7c8b194
+                    md5  2e92685c3a9f88639f1c0620382792c4 \
+                    sha1 b7bfc1a3adf8e5849ac19a71a6ad6ef01ee5eb47 \
+                    ripemd160 806b3fe31901b23e2350d9a8590c0bad97927939
 
 extract.only    InsightToolkit-${version}.tar.gz \
                 CableSwig-ITK-${version}.tar.gz
@@ -152,9 +152,9 @@ default_variants \
 variant doc description "provide doxygen documentation in ${itkDocPath}" {
     distfiles-append    ${itkDocFile}
     checksums-append    ${itkDocFile} \
-                        md5  99dcad9f8e7a3d0acb9da62efdf5fd13 \
-                        sha1 e6800094f493e6ef2b1484ce2da578a19a978c40 \
-                        rmd160 a20167892a6e91e6f530313c3c057e4d08999d62
+                        md5  04f2f98ddbaf847d5e0b890210992ec7 \
+                        sha1 fec6e64d6b8c7d1f4b64dbb729eb284f89a9f47f \
+                        ripemd160 9b91ff286a6dfd0f9674219641adde1eb3f3a19a
     post-destroot {
         set itkDocPathLink ${prefix}/share/doc/${distname}
         xinstall -d -o root -g admin -m 0755 ${destroot}/${itkDocPath}
