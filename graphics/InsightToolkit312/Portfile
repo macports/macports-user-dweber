@@ -120,8 +120,8 @@ post-destroot {
     move ${destroot}${prefix}/include/${itkName}   ${destroot}${itkIncPath}
     # Create a symlink from the generic lib and include for InsightToolkit to
     # this version; this should be done by InsightToolkitSelect
-    ln -sf ${distname} ${destroot}${prefix}/lib/${itkName}
-    ln -sf ${distname} ${destroot}${prefix}/include/${itkName}
+    #ln -sf ${distname} ${destroot}${prefix}/lib/${itkName}
+    #ln -sf ${distname} ${destroot}${prefix}/include/${itkName}
     # copy FindITK.cmake to a version specific file, which might persist even
     # when cmake is updated, deactivated, etc.
     set findITK [glob ${prefix}/share/cmake-*/Modules/FindITK.cmake]
@@ -144,7 +144,7 @@ post-destroot {
         if [file isfile ${destroot}${prefix}/bin/$f] {
             move ${destroot}${prefix}/bin/$f ${destroot}${prefix}/bin/${f}-${branch}
             # This should be done by InsightToolkitSelect
-            ln -sf ${f}-${branch} ${destroot}${prefix}/bin/$f
+            #ln -sf ${f}-${branch} ${destroot}${prefix}/bin/$f
         }
     }
 }
@@ -454,7 +454,7 @@ variant wrap requires shared description "USE_WRAP_ITK for external language sup
         move ${destroot}${prefix}/bin/itkwish ${itkwishSh}
         file attributes ${itkwishSh} -permissions 0755
         # This should be done by InsightToolkitSelect
-        ln -s itkwish-${branch} ${destroot}${prefix}/bin/itkwish
+        #ln -s itkwish-${branch} ${destroot}${prefix}/bin/itkwish
         # Change the content of itkwish
         reinplace "s|${itkName}|${distname}|g" ${itkwishSh}
         reinplace "s|//|/|g" ${itkwishSh}
@@ -581,7 +581,7 @@ proc pyPostDestroot {} {
     set wrapITKpth ${destroot}${prefix}/${pySite}/WrapITK-${branch}.pth
     move ${destroot}${prefix}/${pySite}/WrapITK.pth ${wrapITKpth}
     # This symlink should be done with InsightToolkitSelect
-    ln -s WrapITK-${branch}.pth ${destroot}${prefix}/${pySite}/WrapITK.pth
+    #ln -s WrapITK-${branch}.pth ${destroot}${prefix}/${pySite}/WrapITK.pth
     # Change the content of WrapITK.pth (for any python version)
     reinplace "s|${itkName}|${distname}|g" ${wrapITKpth}
     reinplace "s|//|/|g" ${wrapITKpth}
@@ -592,7 +592,7 @@ proc pyPostDestroot {} {
     reinplace "s|${itkName}|${distname}|g" ${findWrapITK-branch}
     reinplace "s|//|/|g" ${findWrapITK-branch}
     # This symlink should be done with InsightToolkitSelect
-    ln -s FindWrapITK-${branch}.cmake ${findWrapITK}
+    #ln -s FindWrapITK-${branch}.cmake ${findWrapITK}
 }
 
 variant py24 requires wrap conflicts py25 description "python 2.4 wrapper (includes wrap)" {
