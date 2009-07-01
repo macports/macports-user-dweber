@@ -65,6 +65,22 @@ configure {
     system "cd ${build.dir} && cmake ${configure.args} ${worksrcpath}"
 }
 
+
+# From vtk5 - look into how this works and whether it will replace the need to
+# call install_name_tool in many variants.  Disabled until it can be checked.
+#post-configure {
+#    reinplace "s|c++|c++ -L${prefix}/lib |" \
+#    ${worksrcpath}/Infovis/Testing/Cxx/CMakeFiles/InfovisCxxTests.dir/link.txt \
+#    ${worksrcpath}/IO/Testing/Cxx/CMakeFiles/IOCxxTests.dir/link.txt \
+#    ${worksrcpath}/Views/Testing/Cxx/CMakeFiles/ViewsCxxTests.dir/link.txt
+#
+#    if {[variant_isset tcltk]} {
+#      reinplace "s|c++|c++ -L${prefix}/lib |" \
+#      ${worksrcpath}/Wrapping/Tcl/CMakeFiles/vtk.dir/link.txt
+#    }
+#}
+
+
 # To double-check all the cmake variable settings after the configure
 #cd ${build.dir}
 #sudo cmake -LAH ../vtk-${branch} > ~/cmake_vars.txt
@@ -141,10 +157,26 @@ if { ![variant_isset carbon] && ![variant_isset x11] } {
     default_variants-append +cocoa
 }
 
-
 variant huge \
     requires cocoa data doc examples shared testing wrap database mpi boost \
     description "provide cocoa data doc examples shared testing wrap database mpi boost" {}
+
+
+# --- Build variants
+
+variant debug conflicts release description "debug build setting" {
+    configure.args-delete \
+        -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo
+    configure.args-append \
+        -DCMAKE_BUILD_TYPE:STRING=Debug
+}
+
+variant release conflicts debug description "release build setting" {
+    configure.args-delete \
+        -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo
+    configure.args-append \
+        -DCMAKE_BUILD_TYPE:STRING=Release
+}
 
 
 # --- "Core" variants for VTK: data, doc, examples, shared libs, testing
