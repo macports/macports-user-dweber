@@ -178,8 +178,47 @@ variant release conflicts debug description "release build setting" {
         -DCMAKE_BUILD_TYPE:STRING=Release
 }
 
+# Notes on RPATH settings for the shared dylib build and install:
+#
+# CMake book, Appendix A, p 234: "CMAKE_SKIP_BUILD_RPATH: Do not include RPATHs
+# in the build tree.  Normally CMake uses the build tree for the RPATH when
+# building executables etc. on systems that use RPATH.  When the software is
+# installed the executables etc.  are relinked by CMake to have the install
+# RPATH.  If this variable is set to true then the software is always built with
+# no RPATH."
+#
+# CMake book, Appendix B, p. 301: "... SKIP_BUILD_RPATH is a boolean specifying
+# whether to skip automatic generation of an rpath allowing the target to run
+# from the build tree.  BUILD_WITH_INSTALL_RPATH is a boolean specifying whether
+# to link the target in the build tree with the INSTALL_RPATH.  This takes
+# precedence over SKIP_BUILD_RPATH and avoids the need for relinking before
+# installation."
+#
+# Using CMAKE_SKIP_BUILD_RPATH:BOOL=OFF, we get all the executables and dylibs
+# built with the $build.dir in the rpath.  For this to work, we must also have
+# CMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=OFF.  After the build, at the destroot
+# phase, all the installation candidates (which excludes the examples and
+# testing binaries) have their rpath settings reset to the INSTALL_RPATH (which
+# should point to $prefix..., not the $destroot location).  VTK_USE_RPATH
+# is required to ensure that rpath is set for all the installed executables and
+# dylibs.
 
-# --- "Core" variants for VTK: data, doc, examples, shared libs, testing
+variant shared description "build shared libraries (default)" {
+    configure.args-delete \
+        -DBUILD_SHARED_LIBS:BOOL=OFF
+    configure.args-append \
+        -DBUILD_SHARED_LIBS:BOOL=ON \
+        -DCMAKE_SKIP_BUILD_RPATH:BOOL=OFF \
+        -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=OFF \
+        -DCMAKE_INSTALL_RPATH:STRING=${prefix}/lib/${distname} \
+        -DVTK_USE_RPATH:BOOL=ON
+    # Additional options not required here:
+    #-DCMAKE_EXE_LINKER_FLAGS:STRING=-rpath ${prefix}/lib \
+    #-DVTK_REQUIRED_EXE_LINKER_FLAGS:STRING=-rpath ${prefix}/lib
+}
+
+
+# --- "Core" variants for VTK: data, doc, examples, testing
 
 
 variant data description "provide example data in: ${vtkDataPath}" {
@@ -233,6 +272,28 @@ variant doc description "provide doxygen documentation in: ${vtkDocPath}" {
 }
 
 
+proc resetLibLinks { inputPath } {
+    # The example and testing binaries are built, but they are not "installed".
+    # All their rpath settings point to the build.dir, so they must be
+    # reset using install_name_tool for the destroot install.
+    global buildBinPath vtkLibPath
+    foreach f [glob ${inputPath}/*] {
+        if [string equal [file extension ${f}] ".app"] {
+            set exeName [file rootname [lindex [file split ${f}] end]]
+            set f [format "%s/Contents/MacOS/%s" ${f} ${exeName}]
+        }
+        if [expr [file isfile ${f}] && [file executable ${f}]] {
+            foreach dep [exec otool -L ${f}] {
+                if [string match "*/libvtk*.dylib" ${dep}] {
+                    set newdep [strsed ${dep} #${buildBinPath}#${vtkLibPath}#]
+                    system "install_name_tool -change ${dep} ${newdep} ${f}"
+                }
+            }
+        }
+    }
+}
+
+
 variant examples description "provide VTK examples in: ${vtkExamplePath}" {
     configure.args-delete \
         -DBUILD_EXAMPLES:BOOL=OFF
@@ -250,63 +311,10 @@ variant examples description "provide VTK examples in: ${vtkExamplePath}" {
               file copy ${f} ${destroot}/${vtkExamplePath}/bin/
             }
         }
-        # All the rpath settings for these binaries point to the build.dir, so
-        # they are reset using install_name_tool.
-        foreach f [glob ${destroot}/${vtkExamplePath}/bin/*] {
-            if [string equal [file extension ${f}] ".app"] {
-                set exeName [file rootname [lindex [file split ${f}] end]]
-                set f [format "%s/Contents/MacOS/%s" ${f} ${exeName}]
-            }
-            if [expr [file isfile ${f}] && [file executable ${f}]] {
-                foreach dep [exec otool -L ${f}] {
-                    if [string match "*/libvtk*.dylib" ${dep}] {
-                        set newdep [strsed ${dep} #${buildBinPath}#${vtkLibPath}#]
-                        system "install_name_tool -change ${dep} ${newdep} ${f}"
-                    }
-                }
-            }
+        if { [variant_isset shared] } {
+            resetLibLinks ${destroot}/${vtkExamplePath}/bin
         }
     }
-}
-
-
-# Notes on RPATH settings for the shared dylib build and install:
-#
-# CMake book, Appendix A, p 234: "CMAKE_SKIP_BUILD_RPATH: Do not include RPATHs
-# in the build tree.  Normally CMake uses the build tree for the RPATH when
-# building executables etc. on systems that use RPATH.  When the software is
-# installed the executables etc.  are relinked by CMake to have the install
-# RPATH.  If this variable is set to true then the software is always built with
-# no RPATH."
-#
-# CMake book, Appendix B, p. 301: "... SKIP_BUILD_RPATH is a boolean specifying
-# whether to skip automatic generation of an rpath allowing the target to run
-# from the build tree.  BUILD_WITH_INSTALL_RPATH is a boolean specifying whether
-# to link the target in the build tree with the INSTALL_RPATH.  This takes
-# precedence over SKIP_BUILD_RPATH and avoids the need for relinking before
-# installation."
-#
-# Using CMAKE_SKIP_BUILD_RPATH:BOOL=OFF, we get all the executables and dylibs
-# built with the $build.dir in the rpath.  For this to work, we must also have
-# CMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=OFF.  After the build, at the destroot
-# phase, all the installation candidates (which excludes the examples and
-# testing binaries) have their rpath settings reset to the INSTALL_RPATH (which
-# should point to $prefix..., not the $destroot location).  VTK_USE_RPATH
-# is required to ensure that rpath is set for all the installed executables and
-# dylibs.
-
-variant shared description "build shared libraries (default)" {
-    configure.args-delete \
-        -DBUILD_SHARED_LIBS:BOOL=OFF
-    configure.args-append \
-        -DBUILD_SHARED_LIBS:BOOL=ON \
-        -DCMAKE_SKIP_BUILD_RPATH:BOOL=OFF \
-        -DCMAKE_BUILD_WITH_INSTALL_RPATH:BOOL=OFF \
-        -DCMAKE_INSTALL_RPATH:STRING=${prefix}/lib/${distname} \
-        -DVTK_USE_RPATH:BOOL=ON
-    # Additional options not required here:
-    #-DCMAKE_EXE_LINKER_FLAGS:STRING=-rpath ${prefix}/lib \
-    #-DVTK_REQUIRED_EXE_LINKER_FLAGS:STRING=-rpath ${prefix}/lib
 }
 
 
@@ -333,21 +341,8 @@ variant testing requires data description "provide VTK tests in: ${vtkTestingPat
               file copy ${f} ${destroot}/${vtkTestingPath}/bin/
             }
         }
-        # All the rpath settings for these binaries point to the build.dir, so
-        # they are reset using install_name_tool.
-        foreach f [glob ${destroot}/${vtkTestingPath}/bin/*] {
-            if [string equal [file extension ${f}] ".app"] {
-                set exeName [file rootname [lindex [file split ${f}] end]]
-                set f [format "%s/Contents/MacOS/%s" ${f} ${exeName}]
-            }
-            if [expr [file isfile ${f}] && [file executable ${f}]] {
-                foreach dep [exec otool -L ${f}] {
-                    if [string match "*/libvtk*.dylib" ${dep}] {
-                        set newdep [strsed ${dep} #${buildBinPath}#${vtkLibPath}#]
-                        system "install_name_tool -change ${dep} ${newdep} ${f}"
-                    }
-                }
-            }
+        if { [variant_isset shared] } {
+            resetLibLinks ${destroot}/${vtkTestingPath}/bin
         }
     }
 }
