@@ -113,6 +113,7 @@ configure.args \
     -DVTK_USE_VIEWS:BOOL=ON \
     -DVTK_USE_GL2PS:BOOL=ON \
     -DVTK_USE_N_WAY_ARRAYS:BOOL=ON \
+    -DVTK_USE_TK:BOOL=OFF \
     -DVTK_WRAP_JAVA:BOOL=OFF \
     -DVTK_WRAP_PYTHON:BOOL=OFF \
     -DVTK_WRAP_TCL:BOOL=OFF
@@ -630,8 +631,10 @@ variant tcl conflicts tcl_apple description "tcl wrapper (MacPorts tcl/tk)" {
         port:tcl \
         port:tk
     configure.args-delete \
+        -DVTK_USE_TK:BOOL=OFF \
         -DVTK_WRAP_TCL:BOOL=OFF
     configure.args-append \
+        -DVTK_USE_TK:BOOL=ON \
         -DVTK_WRAP_TCL:BOOL=ON \
         -DTCL_TCLSH:FILEPATH=${prefix}/bin/tclsh \
         -DTCL_INCLUDE_PATH:PATH=${prefix}/include \
@@ -646,14 +649,16 @@ variant tcl conflicts tcl_apple description "tcl wrapper (MacPorts tcl/tk)" {
 
 variant tcl_apple conflicts tcl description "tcl wrapper (Apple tcl/tk framework)" {
     configure.args-delete \
+        -DVTK_USE_TK:BOOL=OFF \
         -DVTK_WRAP_TCL:BOOL=OFF
     configure.args-append \
+        -DVTK_USE_TK:BOOL=ON \
         -DVTK_WRAP_TCL:BOOL=ON \
         -DTCL_TCLSH:FILEPATH=/usr/bin/tclsh \
         -DTCL_INCLUDE_PATH:PATH=/System/Library/Frameworks/Tcl.framework/Headers \
-        -DTCL_LIBRARY:FILEPATH=/System/Library/Frameworks/tcl.framework \
+        -DTCL_LIBRARY:FILEPATH=/System/Library/Frameworks/Tcl.framework \
         -DTK_INCLUDE_PATH:PATH=/System/Library/Frameworks/Tk.framework/Headers \
-        -DTK_LIBRARY:FILEPATH=/System/Library/Frameworks/tk.framework
+        -DTK_LIBRARY:FILEPATH=/System/Library/Frameworks/Tk.framework
     post-destroot {
         tclPostDestroot
     }
