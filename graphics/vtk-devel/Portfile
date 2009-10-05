@@ -191,7 +191,7 @@ variant wrap \
     description "provide java, py26, & tcl" {}
 
 variant database \
-    requires mysql5 pgsql83 odbc \
+    requires mysql5 pgsql84 odbc \
     description "provide all database variants" {}
 
 
@@ -694,11 +694,32 @@ variant mysql5 description "build the MySQL driver for vtkSQLDatabase" {
 }
 
 
-variant pgsql83 description "build the PostgreSQL 8.3 driver for vtkSQLDatabase" {
+variant pgsql83 conflicts pgsql84 description "build the PostgreSQL 8.3 driver for vtkSQLDatabase" {
     depends_lib-append \
         path:lib/postgresql83/bin/pg_config:postgresql83
     pre-configure {
         set pgconf [exec ${prefix}/lib/postgresql83/bin/pg_config ]
+        set includeIdx [lsearch -regex ${pgconf} "^INCLUDEDIR"]
+        set includePath [lindex ${pgconf} [expr ${includeIdx} + 2]]
+        set libIdx [lsearch -regex $pgconf "^LIBDIR"]
+        set libPath [lindex $pgconf [expr $libIdx + 2]]
+        set libFile [exec find ${libPath} -name "libpq.dylib"]
+        configure.args-append \
+            -DVTK_USE_POSTGRES:BOOL=ON \
+            -DPOSTGRES_INCLUDE_DIRECTORIES:PATH=${includePath} \
+            -DPOSTGRES_LIBRARIES:FILEPATH=${libFile}
+            #// A URL for a PostgreSQL server of the form
+            #// psql://[[username[:password]@]hostname[:port]]/[dbname]
+            #VTK_PSQL_TEST_URL:STRING=
+    }
+}
+
+
+variant pgsql84 conflicts pgsql83 description "build the PostgreSQL 8.4 driver for vtkSQLDatabase" {
+    depends_lib-append \
+        path:lib/postgresql84/bin/pg_config:postgresql84
+    pre-configure {
+        set pgconf [exec ${prefix}/lib/postgresql84/bin/pg_config ]
         set includeIdx [lsearch -regex ${pgconf} "^INCLUDEDIR"]
         set includePath [lindex ${pgconf} [expr ${includeIdx} + 2]]
         set libIdx [lsearch -regex $pgconf "^LIBDIR"]
