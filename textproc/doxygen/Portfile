@@ -35,6 +35,7 @@ checksums   md5 2ec343643e134f0d3ce2069420bcb4f0 \
 depends_build-append    bin:perl:perl5 \
                         bin:flex:flex \
                         bin:bison:bison \
+                        bin:gmake:gmake \
                         bin:ginstall:coreutils
 depends_lib             port:libpng \
                         path:bin/dot:graphviz \
@@ -42,20 +43,29 @@ depends_lib             port:libpng \
 
 universal_variant no
 
-configure.pre_args  --prefix ${prefix}
-configure.args      --docdir ${prefix}/share/doc \
-                    --dot    ${prefix}/bin/dot
+configure.pre_args  --prefix    ${prefix}
+configure.args      --docdir    ${prefix}/share/doc \
+                    --dot       ${prefix}/bin/dot \
+                    --make      ${prefix}/bin/gmake \
+                    --install   ${prefix}/bin/ginstall \
+                    --flex      ${prefix}/bin/flex \
+                    --bison     ${prefix}/bin/bison
 
-#post-patch {
-#   # ensure correct compilers and compiler options are used
-#   reinplace "/^TMAKE_CC\[\[:space:\]\]/s%=.*%= ${configure.cc} ${configure.cppflags}%" ${tmake_conf}
-#   reinplace "/^TMAKE_CXX\[\[:space:\]\]/s%=.*%= ${configure.cxx} ${configure.cppflags}%" ${tmake_conf}
-#   reinplace "/^TMAKE_LINK\[\[:space:\]\]/s%=.*%= ${configure.cxx} ${configure.ldflags}%" ${tmake_conf}
-#   reinplace "/^TMAKE_LINK_SHLIB\[\[:space:\]\]/s%=.*%= ${configure.cxx}%" ${tmake_conf}
-#
-#   # may not be strictly necessary, but remove trailing '/' from DESTDIR
-#   reinplace "s|\$(DESTDIR)/|\$(DESTDIR)|g" ${worksrcpath}/Makefile.in
-#}
+post-patch {
+    #system "echo ${tmake_conf}"
+    #system "echo /^TMAKE_CC\[\[:space:\]\]/s%=.*%= ${configure.cc} ${configure.cppflags}%"
+    #system "echo /^TMAKE_CXX\[\[:space:\]\]/s%=.*%= ${configure.cxx} ${configure.cppflags}%"
+    #system "echo /^TMAKE_LINK\[\[:space:\]\]/s%=.*%= ${configure.cxx} ${configure.ldflags}%"
+    #system "echo /^TMAKE_LINK_SHLIB\[\[:space:\]\]/s%=.*%= ${configure.cxx}%"
+    # ensure correct compilers and compiler options are used
+    reinplace "/^TMAKE_CC\[\[:space:\]\]/s%=.*%= ${configure.cc} ${configure.cppflags}%" ${tmake_conf}
+    reinplace "/^TMAKE_CXX\[\[:space:\]\]/s%=.*%= ${configure.cxx} ${configure.cppflags}%" ${tmake_conf}
+    #reinplace "/^TMAKE_LINK\[\[:space:\]\]/s%=.*%= ${configure.cxx} ${configure.ldflags}%" ${tmake_conf}
+    #reinplace "/^TMAKE_LINK_SHLIB\[\[:space:\]\]/s%=.*%= ${configure.cxx}%" ${tmake_conf}
+
+    # may not be strictly necessary, but remove trailing '/' from DESTDIR
+    reinplace "s|\$(DESTDIR)/|\$(DESTDIR)|g" ${worksrcpath}/Makefile.in
+}
 
 build.target        all
 
@@ -63,32 +73,6 @@ destroot.target     install
 destroot.args       INSTALL=${prefix} \
                     DOCDIR=${prefix}/share/doc/doxygen \
                     MAN1DIR=share/man/man1
-
-variant docs description {Include the doxygen PDF documentation and LaTeX} {
-    build.target-append     pdf
-    destroot.target-append  install_docs
-    depends_build-append    bin:pdflatex:texlive \
-                            bin:gs:ghostscript
-}
-
-variant wizard description {Include the GUI wizard based on Qt} {
-    configure.env-append    QTDIR=${prefix}/libexec/qt4-mac
-    build.env-append        QTDIR=${prefix}/libexec/qt4-mac
-    depends_lib-append      port:qt4-mac
-    configure.args-append   --with-doxywizard
-    # on Macs, qmake builds .app directories
-    patchfiles-append   patch-Makfile.in.diff
-    post-patch {
-        # give doxywizard the more mac-like name of DoxyWizard
-        reinplace "/^TARGET\[\[:space:\]\]/s%=.*%= DoxyWizard%" ${worksrcpath}/addon/doxywizard/doxywizard.pro.in
-        reinplace "s|__APPLICATIONS_DIR__|${applications_dir}|" ${worksrcpath}/addon/doxywizard/Makefile.in
-        reinplace "s|\$(INSTALL)|\$(DESTDIR)\$(INSTALL)|g" ${worksrcpath}/addon/doxywizard/Makefile.in
-    }
-    post-destroot {
-        # allow doxywizard to be called from the command line
-        ln -s ${applications_dir}/DoxyWizard.app/Contents/MacOS/DoxyWizard ${destroot}${prefix}/bin/doxywizard
-    }
-}
 
 platform darwin {
     # Specify the platform explicitly to avoid a universal build.
@@ -106,4 +90,59 @@ platform darwin 10 {
     # Disable invalid "Unsupported OS" error on Snow Leopard
     patchfiles-append patch-qtools_qglobal.h.diff
 }
+
+variant docs description {Include the doxygen PDF documentation and LaTeX} {
+    build.target-append     pdf
+    destroot.target-append  install_docs
+    depends_build-append    bin:pdflatex:texlive \
+                            bin:gs:ghostscript
+}
+
+# [dweber] Removing the wizard variant because there are too many build failures
+# that I don't have time to investigate.  It's just easier to leave this out.
+
+# --with-doxywizard     Build the GUI frontend for doxygen. This requires Qt 3.3.x
+#variant wizard description {Include the GUI wizard based on Qt 3.3.x} {
+#    configure.env-append    QTDIR=${prefix}/lib/qt3
+#    build.env-append        QTDIR=${prefix}/lib/qt3
+#    depends_lib-append      port:qt3
+#    configure.args-append   --with-doxywizard
+#    # on Macs, qmake builds .app directories
+#    patchfiles-append   patch-Makefile.in.diff
+#    post-patch {
+#        # give doxywizard the more mac-like name of DoxyWizard
+#        reinplace "/^TARGET\[\[:space:\]\]/s%=.*%= DoxyWizard%" ${worksrcpath}/addon/doxywizard/doxywizard.pro.in
+#        reinplace "s|__APPLICATIONS_DIR__|${applications_dir}|" ${worksrcpath}/addon/doxywizard/Makefile.in
+#        reinplace "s|\$(INSTALL)|\$(DESTDIR)\$(INSTALL)|g" ${worksrcpath}/addon/doxywizard/Makefile.in
+#        #reinplace "s|QMAKE=qmake|QMAKE=qmake-mac|g" ${worksrcpath}/addon/doxywizard/Makefile.in
+#    }
+#    post-destroot {
+#        # allow doxywizard to be called from the command line
+#        ln -s ${applications_dir}/DoxyWizard.app/Contents/MacOS/DoxyWizard ${destroot}${prefix}/bin/doxywizard
+#    }
+#}
+
+# [dweber] Remove this prior variant that depends on qt4-mac, because doxygen is
+# not programmed for qt4, it requires qt3.3.x (as determined from the
+# ./configure --help items in the worksrcpath).
+
+#variant wizard description {Include the GUI wizard based on Qt} {
+#    configure.env-append    QTDIR=${prefix}/libexec/qt4-mac
+#    build.env-append        QTDIR=${prefix}/libexec/qt4-mac
+#    depends_lib-append      port:qt4-mac
+#    configure.args-append   --with-doxywizard
+#    # on Macs, qmake builds .app directories
+#    patchfiles-append   patch-Makefile.in.diff
+#    post-patch {
+#        # give doxywizard the more mac-like name of DoxyWizard
+#        reinplace "/^TARGET\[\[:space:\]\]/s%=.*%= DoxyWizard%" ${worksrcpath}/addon/doxywizard/doxywizard.pro.in
+#        reinplace "s|__APPLICATIONS_DIR__|${applications_dir}|" ${worksrcpath}/addon/doxywizard/Makefile.in
+#        reinplace "s|\$(INSTALL)|\$(DESTDIR)\$(INSTALL)|g" ${worksrcpath}/addon/doxywizard/Makefile.in
+#        reinplace "s|QMAKE=qmake|QMAKE=qmake-mac|g" ${worksrcpath}/addon/doxywizard/Makefile.in
+#    }
+#    post-destroot {
+#        # allow doxywizard to be called from the command line
+#        ln -s ${applications_dir}/DoxyWizard.app/Contents/MacOS/DoxyWizard ${destroot}${prefix}/bin/doxywizard
+#    }
+#}
 
